@@ -1,0 +1,25 @@
+*.tvsconfig
+*.identcache
+*.dproj.local
+*.groupproj.local
+*.stat
+*.dsk
+*.~dsk
+*.drc
+*.map
+*.exe
+*.dll
+*.pdf
+*.txt
+*.cfg
+**\_history
+**\_recovery
+!Setup\ssleay32.dll
+!Setup\libeay32.dll
+!Setup\openssl.exe
+!Setup\OpenSSL License.txt
+ATSWebDev\bin\Management\bin
+Win32
+Win64
+SignedUninstaller
+Output
