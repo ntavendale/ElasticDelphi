@@ -13,8 +13,7 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes,
   IdBaseComponent, IdComponent, IdTCPConnection, IdTCPClient, IdHTTP, IdSSL, IdSSLOpenSSL,
-  IdSSLOpenSSLHeaders, IdIOHandler,  IdIOHandlerSocket, IdIOHandlerStack,
-  Utilities, FileLogger;
+  IdSSLOpenSSLHeaders, IdIOHandler,  IdIOHandlerSocket, IdIOHandlerStack;
 
 type
   TEndpointClient = class
@@ -30,6 +29,8 @@ type
       { Public declarations }
       constructor Create(AEndpointURL: String; APort: WORD; AUserName, APAssword: String; AResource: String); virtual;
       destructor Destroy; override;
+      function Head: Integer; overload;
+      function Head(AResource: String): Integer; overload;
       function Get: String; overload;
       function Get(AResource: String): String; overload;
       procedure Put(AContents: String); overload;
@@ -71,6 +72,30 @@ begin
   if Assigned(FHandler) then
     FHandler.Free;
   inherited Destroy;
+end;
+
+function TEndpointClient.Head: Integer;
+begin
+  FResponseText := String.Empty;
+  try
+    FHttp.Head(FFullURL);
+  except
+  end;
+  FResponseCode := FHttp.ResponseCode;
+  Result := FResponseCode;
+  FResponseText := FHttp.ResponseText;
+end;
+
+function TEndpointClient.Head(AResource: String): Integer;
+begin
+  FResponseText := String.Empty;
+  try
+    FHttp.Head(String.Format('%s/%s', [FEndpointURL, AResource]));
+  except
+  end;
+  FResponseCode := FHttp.ResponseCode;
+  Result := FResponseCode;
+  FResponseText := FHttp.ResponseText;
 end;
 
 function TEndpointClient.Get: String;
