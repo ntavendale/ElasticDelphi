@@ -21,13 +21,6 @@ object fmMain: TfmMain
     Height = 105
     Caption = 'Index Exists'
     TabOrder = 0
-    object lbResult: TLabel
-      Left = 3
-      Top = 84
-      Width = 51
-      Height = 18
-      Caption = 'lbResult'
-    end
     object ebCheckIndex: TEdit
       Left = 3
       Top = 24
@@ -52,13 +45,6 @@ object fmMain: TfmMain
     Height = 105
     Caption = 'Create Index'
     TabOrder = 1
-    object lbCreateResult: TLabel
-      Left = 99
-      Top = 76
-      Width = 51
-      Height = 18
-      Caption = 'lbResult'
-    end
     object Label1: TLabel
       Left = 8
       Top = 24
@@ -109,6 +95,56 @@ object fmMain: TfmMain
       Width = 73
       Height = 26
       TabOrder = 3
+    end
+  end
+  object memMain: TMemo
+    Left = 0
+    Top = 304
+    Width = 836
+    Height = 175
+    Align = alBottom
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = 'Courier'
+    Font.Style = []
+    ParentFont = False
+    ScrollBars = ssBoth
+    TabOrder = 2
+  end
+  object GroupBox2: TGroupBox
+    Left = 8
+    Top = 111
+    Width = 305
+    Height = 105
+    Caption = 'Add SysLog'
+    TabOrder = 3
+    object btnAddSyslogWithID: TButton
+      Left = 16
+      Top = 32
+      Width = 105
+      Height = 25
+      Caption = 'Add With ID'
+      TabOrder = 0
+      OnClick = btnAddSyslogWithIDClick
+    end
+    object btnUpdateSyslogWithID: TButton
+      Left = 16
+      Top = 63
+      Width = 105
+      Height = 25
+      Caption = 'Update With ID'
+      TabOrder = 1
+      OnClick = btnUpdateSyslogWithIDClick
+    end
+    object btnAddSyslogWithNoID: TButton
+      Left = 184
+      Top = 32
+      Width = 105
+      Height = 25
+      Caption = 'Add With No ID'
+      TabOrder = 2
+      OnClick = btnAddSyslogWithNoIDClick
     end
   end
 end

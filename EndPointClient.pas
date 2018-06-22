@@ -136,12 +136,13 @@ begin
   try
     LStream := TStringStream.Create(AContents);
     try
+      FHttp.Request.Accept := 'application/json';
       FHttp.Put(FFullURL, LStream);
     finally
       LStream.Free;
     end;
   except
-    //Do not throw
+
   end;
   FResponseCode := FHttp.ResponseCode;
   FResponseText := FHttp.ResponseText;
@@ -155,6 +156,7 @@ begin
   try
     LStream := TStringStream.Create(AContents);
     try
+      FHttp.Request.Accept := 'application/json';
       FHttp.Put(String.Format('%s/%s', [FEndpointURL, AResource]), LStream);
     finally
       LStream.Free;

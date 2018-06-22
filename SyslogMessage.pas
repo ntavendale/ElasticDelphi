@@ -9,6 +9,7 @@ uses
 type
   TSyslogMessage = class
   protected
+    FDocumentID: String;
     FMessageType: String;
     FFacility: String;
     FSeverity: String;
@@ -23,6 +24,7 @@ type
     constructor Create(ASyslogMessage: TSyslogMessage = nil);
     function ToJSONObject: TJSONObject;
     procedure FromJSONObject(AValue: TJSONObject);
+    property DocumentID: String read FDocumentID write FDocumentID;
     property MessageType: String read FMessageType write FMessageType;
     property Facility: String read FFacility write FFacility;
     property Severity: String read FSeverity write FSeverity;
@@ -57,6 +59,7 @@ implementation
 {$REGION 'TSyslogMessage'}
 constructor TSyslogMessage.Create(ASyslogMessage: TSyslogMessage = nil);
 begin
+  FDocumentID := String.Empty;
   FMessageType := String.Empty;
   FFacility := String.Empty;
   FSeverity := String.Empty;
@@ -117,9 +120,10 @@ end;
 
 procedure TSyslogMessage.FromJSONObject(AValue: TJSONObject);
 begin
+  if nil <> AValue.Values['_id'] then
+    FDocumentID := AValue.Values['_id'].Value;
   if nil <> AValue.Values['type'] then
     FMessageType := AValue.Values['type'].Value;
-
   if nil <> AValue.Values['facility'] then
     FFacility := AValue.Values['facility'].Value;
   if nil <> AValue.Values['severity'] then
