@@ -11,9 +11,10 @@ unit Main;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes,
-  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, System.JSON,
-  EndpointClient, SyslogMessage;
+  Winapi.Windows, Winapi.Messages, System.IOUtils, System.SysUtils, System.Variants,
+  System.Generics.Collections, System.Classes, System.UITypes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, System.JSON, EndpointClient,
+  SyslogMessage;
 
 const
   ENDPOINT = 'http://127.0.0.1';
@@ -36,14 +37,22 @@ type
     btnAddSyslogWithID: TButton;
     btnUpdateSyslogWithID: TButton;
     btnAddSyslogWithNoID: TButton;
+    gbBulkUpdates: TGroupBox;
+    ebFile: TEdit;
+    odMain: TOpenDialog;
+    btnFindFile: TButton;
+    btnBulkUpdate: TButton;
     procedure btnIndexExistsClick(Sender: TObject);
     procedure btnCreateIndexClick(Sender: TObject);
     procedure btnAddSyslogWithIDClick(Sender: TObject);
     procedure btnUpdateSyslogWithIDClick(Sender: TObject);
     procedure btnAddSyslogWithNoIDClick(Sender: TObject);
+    procedure btnFindFileClick(Sender: TObject);
+    procedure btnBulkUpdateClick(Sender: TObject);
   private
     { Private declarations }
     procedure FormInit;
+    procedure BulkLoad(AList: TSyslogMessageList);
   public
     { Public declarations }
     constructor Create(Aowner: TComponent); override;
@@ -68,6 +77,59 @@ begin
   ebCreateIndex.Text := FormatDateTime('YYYYMMDD', Date);
   ebCreateShards.Text := '5';
   ebCreateReplicas.Text := '1';
+end;
+
+procedure TfmMain.BulkLoad(AList: TSyslogMessageList);
+var
+  LDict: TObjectDictionary<string, TSyslogMessageList>;
+  LPair: TPair<string, TSyslogMessageList>;
+  LBulk: TStrings;
+  LKey: String;
+  i: Integer;
+  LEndPoint: TEndPointClient;
+begin
+  LDict := TObjectDictionary<string, TSyslogMessageList>.Create([doOwnsValues]);
+  try
+    for i := 0 to (AList.Count - 1) do
+    begin
+      //Use index names as keys, messages for that date go in value list
+      LKey := FormatDateTime('YYYYMMDD', AList[i].TimeStamp);
+      if not LDict.ContainsKey(LKey) then
+      begin
+        LDict.Add(LKey, TSyslogMessageList.Create);
+      end;
+      LDict[LKey].Add( TSyslogMessage.Create(AList[i]) );
+    end;
+
+    LBulk := TStringList.Create;
+    try
+      for LPair in LDict do
+      begin
+        LBulk.Clear;
+
+        for i := 0 to (LPair.Value.Count - 1) do
+        begin
+          LBulk.Add('{"index":{}}');
+          LBulk.Add(  LPair.Value[i].AsJson );
+        end;
+
+        LEndpoint := TEndpointClient.Create(ENDPOINT, PORT, String.Empty,String.Empty, String.Format('%s/Message/_bulk', [LPair.Key] ));
+        try
+          LEndpoint.Post(LBulk.Text);
+          if LEndpoint.StatusCode in [200, 201] then
+            memMain.Lines.Add(String.Format('Post %s', [LEndpoint.FullURL ]))
+          else
+            memMain.Lines.Add(String.Format('Failed Post %s', [LEndpoint.StatusText ]));
+        finally
+          LEndpoint.Free;
+        end;
+      end;
+    finally
+      LBulk.Free;
+    end;
+  finally
+    LDict.Free;
+  end;
 end;
 
 procedure TfmMain.btnIndexExistsClick(Sender: TObject);
@@ -194,7 +256,7 @@ begin
     LSyslog.Host := 'localhost';
     LSyslog.Process := 'MyProcess';
     LSyslog.ProcessID := 100;
-    LSyslog.MessageContent := 'Opps! There''s an emergency!';;
+    LSyslog.MessageContent := 'Opps! There''s an emergency!';
 
     LEndpoint := TEndpointClient.Create(ENDPOINT, PORT, String.Empty,String.Empty, String.Format('%s/message', [FormatDateTime('YYYYMMDD', LSyslog.TimeStamp)]));
     try
@@ -209,6 +271,31 @@ begin
 
   finally
     LSyslog.Free;
+  end;
+end;
+
+procedure TfmMain.btnFindFileClick(Sender: TObject);
+begin
+  if not odMain.Execute then
+    EXIT;
+  ebFile.Text := odMain.FileName;
+end;
+
+procedure TfmMain.btnBulkUpdateClick(Sender: TObject);
+var
+  LMsgList: TSyslogMessageList;
+begin
+  if not TFile.Exists(ebFile.Text) then
+  begin
+    MessageDlg(String.Format('File %s does not exist', [ebFile.Text]), mtError, [mbOK], 0);
+    EXIT;
+  end;
+
+  LMsgList := TSyslogMessageList.LoadFromFile(ebFile.Text);
+  try
+    BulkLoad(LMsgList);
+  finally
+    LMsgList.Free;
   end;
 end;
 

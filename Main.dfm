@@ -3,7 +3,7 @@ object fmMain: TfmMain
   Top = 416
   Caption = 'Elastic Delphi'
   ClientHeight = 479
-  ClientWidth = 836
+  ClientWidth = 834
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -100,7 +100,7 @@ object fmMain: TfmMain
   object memMain: TMemo
     Left = 0
     Top = 304
-    Width = 836
+    Width = 834
     Height = 175
     Align = alBottom
     Font.Charset = DEFAULT_CHARSET
@@ -111,6 +111,7 @@ object fmMain: TfmMain
     ParentFont = False
     ScrollBars = ssBoth
     TabOrder = 2
+    ExplicitWidth = 836
   end
   object GroupBox2: TGroupBox
     Left = 8
@@ -146,5 +147,44 @@ object fmMain: TfmMain
       TabOrder = 2
       OnClick = btnAddSyslogWithNoIDClick
     end
+  end
+  object gbBulkUpdates: TGroupBox
+    Left = 319
+    Top = 111
+    Width = 509
+    Height = 105
+    Caption = 'Bulk Updates'
+    TabOrder = 4
+    object ebFile: TEdit
+      Left = 8
+      Top = 24
+      Width = 450
+      Height = 26
+      TabOrder = 0
+    end
+    object btnFindFile: TButton
+      Left = 464
+      Top = 24
+      Width = 27
+      Height = 25
+      Caption = '...'
+      TabOrder = 1
+      OnClick = btnFindFileClick
+    end
+    object btnBulkUpdate: TButton
+      Left = 3
+      Top = 64
+      Width = 75
+      Height = 25
+      Caption = 'Load'
+      TabOrder = 2
+      OnClick = btnBulkUpdateClick
+    end
+  end
+  object odMain: TOpenDialog
+    DefaultExt = 'json'
+    Filter = 'Json Files (*.json)|*.json|All Files (*.*)|*.*'
+    Left = 687
+    Top = 127
   end
 end

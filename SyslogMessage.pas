@@ -159,8 +159,11 @@ var
   i: Integer;
 begin
   FList := TobjectList<TSyslogMessage>.Create(TRUE);
-  for i := 0 to (ASyslogMessageList.Count - 1) do
-    FList.Add( TSyslogMessage.Create(ASyslogMessageList[i]) );
+  if ( nil <> ASyslogMessageList ) then
+  begin
+    for i := 0 to (ASyslogMessageList.Count - 1) do
+      FList.Add( TSyslogMessage.Create(ASyslogMessageList[i]) );
+  end;
 end;
 
 destructor TSyslogMessageList.Destroy;
