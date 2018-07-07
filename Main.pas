@@ -13,8 +13,7 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.IOUtils, System.SysUtils, System.Variants,
   System.Generics.Collections, System.Classes, System.UITypes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, System.JSON, EndpointClient,
-  SyslogMessage;
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, System.JSON, EndpointClient;
 
 const
   ENDPOINT = 'http://127.0.0.1';
@@ -45,7 +44,6 @@ type
   private
     { Private declarations }
     procedure FormInit;
-    procedure BulkLoad(AList: TSyslogMessageList);
     procedure CreateIndex(AIndexName: String);
   public
     { Public declarations }
@@ -104,69 +102,21 @@ begin
   end;
 end;
 
-procedure TfmMain.BulkLoad(AList: TSyslogMessageList);
-var
-  LDict: TObjectDictionary<string, TSyslogMessageList>;
-  LPair: TPair<string, TSyslogMessageList>;
-  LBulk: TStrings;
-  LKey: String;
-  i: Integer;
-  LEndPoint: TEndPointClient;
-begin
-  LDict := TObjectDictionary<string, TSyslogMessageList>.Create([doOwnsValues]);
-  try
-    for i := 0 to (AList.Count - 1) do
-    begin
-      //Use index names as keys, messages for that date go in value list
-      LKey := FormatDateTime('YYYYMMDD', AList[i].TimeStamp);
-      if not LDict.ContainsKey(LKey) then
-      begin
-        LDict.Add(LKey, TSyslogMessageList.Create);
-      end;
-      LDict[LKey].Add( TSyslogMessage.Create(AList[i]) );
-    end;
-
-    LBulk := TStringList.Create;
-    try
-      for LPair in LDict do
-      begin
-        LBulk.Clear;
-
-        for i := 0 to (LPair.Value.Count - 1) do
-        begin
-          LBulk.Add('{"index":{}}');
-          LBulk.Add(  LPair.Value[i].AsJson );
-        end;
-
-        LEndpoint := TEndpointClient.Create(ENDPOINT, PORT, String.Empty,String.Empty, String.Format('%s/Message/_bulk', [LPair.Key] ));
-        try
-          LEndpoint.Post(LBulk.Text);
-          if LEndpoint.StatusCode in [200, 201] then
-            memMain.Lines.Add(String.Format('Post %s', [LEndpoint.FullURL ]))
-          else
-            memMain.Lines.Add(String.Format('Failed Post %s', [LEndpoint.StatusText ]));
-        finally
-          LEndpoint.Free;
-        end;
-      end;
-    finally
-      LBulk.Free;
-    end;
-  finally
-    LDict.Free;
-  end;
-end;
-
 procedure TfmMain.btnIndexExistsClick(Sender: TObject);
 var
   LEndpoint: TEndpointClient;
 begin
   LEndpoint := TEndpointClient.Create(ENDPOINT, PORT, String.Empty,String.Empty, ebCheckIndex.Text);
   try
-    if 200 = LEndpoint.Head then
-      memMain.Lines.Add(String.Format('%s exists!', [LEndpoint.FullURL]))
-    else
-    memMain.Lines.Add(String.Format('%s does not exist!', [LEndpoint.FullURL]))
+    Screen.Cursor := crHourglass;
+    try
+      if 200 = LEndpoint.Head then
+        memMain.Lines.Add(String.Format('%s exists!', [LEndpoint.FullURL]))
+      else
+        memMain.Lines.Add(String.Format('%s does not exist!', [LEndpoint.FullURL]))
+    finally
+      Screen.Cursor := crDefault;
+    end;
   finally
     LEndpoint.Free;
   end;
@@ -189,7 +139,13 @@ begin
     LJson.Append(('}                                                          ').Trim);
     LEndPoint := TEndpointClient.Create(ENDPOINT, PORT, String.Empty,String.Empty, ebCreateIndex.Text);
     try
-      LEndpoint.Put(LJson.ToString);
+      Screen.Cursor := crHourglass;
+      try
+        LEndpoint.Put(LJson.ToString);
+      finally
+        Screen.Cursor := crDefault;
+      end;
+
       memMain.Lines.Add(String.Format('Put %s to %s', [LJson.ToString, LEndpoint.FullURL ]));
       if 200 = LEndpoint.StatusCode then
         memMain.Lines.Add(String.Format('%s created!', [LEndpoint.FullURL]))
@@ -224,7 +180,12 @@ begin
 
     LEndpoint := TEndpointClient.Create(ENDPOINT, PORT, String.Empty,String.Empty, '2018-07-01/message/DocID01');
     try
-      LEndpoint.Put(LJson.ToString);
+      Screen.Cursor := crHourglass;
+      try
+        LEndpoint.Put(LJson.ToString);
+      finally
+        Screen.Cursor := crDefault;
+      end;
       if LEndpoint.StatusCode in [200, 201] then
         memMain.Lines.Add(String.Format('Put %s: %s', [LEndpoint.FullURL, LJson.ToString ]))
       else
@@ -258,7 +219,12 @@ begin
 
     LEndpoint := TEndpointClient.Create(ENDPOINT, PORT, String.Empty,String.Empty, '2018-07-01/message/DocID01');
     try
-      LEndpoint.Put(LJson.ToString);
+      Screen.Cursor := crHourglass;
+      try
+        LEndpoint.Put(LJson.ToString);
+      finally
+        Screen.Cursor := crDefault;
+      end;
       if LEndpoint.StatusCode in [200, 201] then
         memMain.Lines.Add(String.Format('Put %s: %s', [LEndpoint.FullURL, LJson.ToString ]))
       else
@@ -266,7 +232,6 @@ begin
     finally
       LEndpoint.Free;
     end;
-
   finally
     LJson.Free;
   end;
@@ -292,7 +257,12 @@ begin
 
     LEndpoint := TEndpointClient.Create(ENDPOINT, PORT, String.Empty,String.Empty, '2018-07-02/message');
     try
-      LEndpoint.Post(LJson.ToString); //To autogenerate ID we use POST insted of PUT
+      Screen.Cursor := crHourglass;
+      try
+        LEndpoint.Post(LJson.ToString); //To autogenerate ID we use POST insted of PUT
+      finally
+        Screen.Cursor := crDefault;
+      end;
       if LEndpoint.StatusCode in [200, 201] then
         memMain.Lines.Add(String.Format('POST %s: %s', [LEndpoint.FullURL, LJson.ToString ]))
       else

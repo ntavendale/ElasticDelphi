@@ -14,8 +14,7 @@ uses
   ExceptionLog7,
   Vcl.Forms,
   Main in 'Main.pas' {fmMain},
-  EndPointClient in 'EndPointClient.pas',
-  SyslogMessage in 'SyslogMessage.pas';
+  EndPointClient in 'EndPointClient.pas';
 
 {$R *.res}
 
