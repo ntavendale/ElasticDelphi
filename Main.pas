@@ -24,35 +24,29 @@ type
     gbIndexExists: TGroupBox;
     ebCheckIndex: TEdit;
     btnIndexExists: TButton;
-    GroupBox1: TGroupBox;
+    gbCreateIndex: TGroupBox;
     ebCreateIndex: TEdit;
     btnCreateIndex: TButton;
-    Label1: TLabel;
-    Label2: TLabel;
-    ebCreateShards: TEdit;
-    ebCreateReplicas: TEdit;
-    Label3: TLabel;
     memMain: TMemo;
     GroupBox2: TGroupBox;
     btnAddSyslogWithID: TButton;
     btnUpdateSyslogWithID: TButton;
     btnAddSyslogWithNoID: TButton;
     gbBulkUpdates: TGroupBox;
-    ebFile: TEdit;
-    odMain: TOpenDialog;
-    btnFindFile: TButton;
-    btnBulkUpdate: TButton;
+    btnBulkUpdateSingleIndex: TButton;
+    btnBulkUpdateMultipleIndex: TButton;
     procedure btnIndexExistsClick(Sender: TObject);
     procedure btnCreateIndexClick(Sender: TObject);
     procedure btnAddSyslogWithIDClick(Sender: TObject);
     procedure btnUpdateSyslogWithIDClick(Sender: TObject);
     procedure btnAddSyslogWithNoIDClick(Sender: TObject);
-    procedure btnFindFileClick(Sender: TObject);
-    procedure btnBulkUpdateClick(Sender: TObject);
+    procedure btnBulkUpdateSingleIndexClick(Sender: TObject);
+    procedure btnBulkUpdateMultipleIndexClick(Sender: TObject);
   private
     { Private declarations }
     procedure FormInit;
     procedure BulkLoad(AList: TSyslogMessageList);
+    procedure CreateIndex(AIndexName: String);
   public
     { Public declarations }
     constructor Create(Aowner: TComponent); override;
@@ -75,8 +69,39 @@ procedure TfmMain.FormInit;
 begin
   ebCheckIndex.Text := FormatDateTime('YYYYMMDD', Date);
   ebCreateIndex.Text := FormatDateTime('YYYYMMDD', Date);
-  ebCreateShards.Text := '5';
-  ebCreateReplicas.Text := '1';
+end;
+
+procedure TfmMain.CreateIndex(AIndexName: String);
+var
+  LEndpoint: TEndpointClient;
+  LIndexDetail: TStringList;
+begin
+  LEndpoint := TEndpointClient.Create(ENDPOINT, PORT, String.Empty,String.Empty, AIndexName);
+  try
+    LIndexDetail := TStringList.Create;
+    try
+      LIndexDetail.Add(('{                                                          ').Trim);
+      LIndexDetail.Add(('    "settings" : {                                         ').Trim);
+      LIndexDetail.Add(('                    "index" : {                            ').Trim);
+      LIndexDetail.Add(('                                 "number_of_shards" : 5,   ').Trim);
+      LIndexDetail.Add(('                                 "number_of_replicas" : 2  ').Trim);
+      LIndexDetail.Add(('                               }                           ').Trim);
+      LIndexDetail.Add(('                  }                                        ').Trim);
+      LIndexDetail.Add(('}                                                          ').Trim);
+
+      LEndpoint.Put(LIndexDetail.Text);
+      memMain.Lines.Add(String.Format('Put %s', [LEndpoint.FullURL ]));
+      if 200 = LEndpoint.StatusCode then
+        memMain.Lines.Add(String.Format('%s created!', [LEndpoint.FullURL]))
+      else
+        memMain.Lines.Add(String.Format('%s creation failed!', [LEndpoint.FullURL]))
+    finally
+      LIndexDetail.Free;
+    end;
+
+  finally
+    LEndpoint.Free;
+  end;
 end;
 
 procedure TfmMain.BulkLoad(AList: TSyslogMessageList);
@@ -149,55 +174,59 @@ end;
 
 procedure TfmMain.btnCreateIndexClick(Sender: TObject);
 var
-  LEndpoint: TEndpointClient;
-  LSettings, LIndexDetail: TJsonObject;
+  LJson: TStringBuilder;
+  LEndPoint: TEndpointClient;
 begin
-  LEndpoint := TEndpointClient.Create(ENDPOINT, PORT, String.Empty,String.Empty, ebCreateIndex.Text);
+  LJson := TStringBuilder.Create;
   try
-    LIndexDetail := TJsonObject.Create;
+    LJson.Append(('{                                                          ').Trim);
+    LJson.Append(('    "settings" : {                                         ').Trim);
+    LJson.Append(('                    "index" : {                            ').Trim);
+    LJson.Append(('                                 "number_of_shards" : 5,   ').Trim);
+    LJson.Append(('                                 "number_of_replicas" : 2  ').Trim);
+    LJson.Append(('                               }                           ').Trim);
+    LJson.Append(('                  }                                        ').Trim);
+    LJson.Append(('}                                                          ').Trim);
+    LEndPoint := TEndpointClient.Create(ENDPOINT, PORT, String.Empty,String.Empty, ebCreateIndex.Text);
     try
-      LSettings := TJsonObject.Create;
-      LSettings.AddPair('number_of_shards', TJsonNumber.Create(StrToIntDef(ebCreateShards.Text, 5)));
-      LSettings.AddPair('number_of_replicas', TJsonNumber.Create(StrToIntDef(ebCreateReplicas.Text, 1)));
-      LIndexDetail.AddPair('settings', LSettings);
-
-      LEndpoint.Put(LIndexDetail.ToJSON);
-      memMain.Lines.Add(String.Format('Put %s to %s', [LIndexDetail.ToJSON, LEndpoint.FullURL ]));
+      LEndpoint.Put(LJson.ToString);
+      memMain.Lines.Add(String.Format('Put %s to %s', [LJson.ToString, LEndpoint.FullURL ]));
       if 200 = LEndpoint.StatusCode then
         memMain.Lines.Add(String.Format('%s created!', [LEndpoint.FullURL]))
       else
         memMain.Lines.Add(String.Format('%s creation failed!', [LEndpoint.FullURL]))
     finally
-      LIndexDetail.Free;
+      LEndpoint.Free;
     end;
 
   finally
-    LEndpoint.Free;
+    LJson.Free;
   end;
 end;
 
 procedure TfmMain.btnAddSyslogWithIDClick(Sender: TObject);
 var
-  LSyslog: TSyslogMessage;
+  LJSon: TStringBuilder;
   LEndpoint: TEndpointClient;
 begin
-  LSyslog := TSyslogMessage.Create;
+  LJson := TStringBuilder.Create;
   try
-    LSyslog.DocumentID := 'DocID01';
-    LSyslog.MessageType := 'BSD';
-    LSyslog.Facility := 'UserLevel';
-    LSyslog.Severity := 'Debug';
-    LSyslog.TimeStamp := Now;
-    LSyslog.Host := 'localhost';
-    LSyslog.Process := 'MyProcess';
-    LSyslog.ProcessID := 99;
-    LSyslog.MessageContent := 'This is a test message with an ID!';
+    LJson.Append(('{                                             ').Trim);
+    LJson.Append(('  "type":"BSD",                               ').Trim);
+    LJson.Append(('  "facility":"UserLevel",                     ').Trim);
+    LJson.Append(('  "severity":"Debug",                         ').Trim);
+    LJson.Append(('  "timeStamp":"2018-07-01T18:24:02.662Z",     ').Trim);
+    LJson.Append(('  "host":"localhost",                         ').Trim);
+    LJson.Append(('  "process":"MyProcess",                      ').Trim);
+    LJson.Append(('  "processId":99,                             ').Trim);
+    LJson.Append(('  "text":"This is a test message with an ID!" ').Trim);
+    LJson.Append(('}                                             ').Trim);
 
-    LEndpoint := TEndpointClient.Create(ENDPOINT, PORT, String.Empty,String.Empty, String.Format('%s/message/%s', [FormatDateTime('YYYYMMDD', LSyslog.TimeStamp), LSyslog.DocumentID]));
+    LEndpoint := TEndpointClient.Create(ENDPOINT, PORT, String.Empty,String.Empty, '2018-07-01/message/DocID01');
     try
-      LEndpoint.Put(LSyslog.AsJson);
+      LEndpoint.Put(LJson.ToString);
       if LEndpoint.StatusCode in [200, 201] then
-        memMain.Lines.Add(String.Format('Put %s: %s', [LEndpoint.FullURL, LSyslog.AsJson ]))
+        memMain.Lines.Add(String.Format('Put %s: %s', [LEndpoint.FullURL, LJson.ToString ]))
       else
         memMain.Lines.Add(String.Format('Failed Put %s', [LEndpoint.StatusText ]));
     finally
@@ -205,32 +234,33 @@ begin
     end;
 
   finally
-    LSyslog.Free;
+    LJson.Free;
   end;
 end;
 
 procedure TfmMain.btnUpdateSyslogWithIDClick(Sender: TObject);
 var
-  LSyslog: TSyslogMessage;
+  LJson: TStringBuilder;
   LEndpoint: TEndpointClient;
 begin
-  LSyslog := TSyslogMessage.Create;
+  LJson := TStringBuilder.Create;
   try
-    LSyslog.DocumentID := 'DocID01';
-    LSyslog.MessageType := 'BSD';
-    LSyslog.Facility := 'UserLevel';
-    LSyslog.Severity := 'Debug';
-    LSyslog.TimeStamp := Now;
-    LSyslog.Host := 'localhost';
-    LSyslog.Process := 'MyProcess';
-    LSyslog.ProcessID := 100;
-    LSyslog.MessageContent := 'This is an updated test message with an ID!';
+    LJson.Append(('{                                             ').Trim);
+    LJson.Append(('  "type":"BSD",                               ').Trim);
+    LJson.Append(('  "facility":"UserLevel",                     ').Trim);
+    LJson.Append(('  "severity":"Debug",                         ').Trim);
+    LJson.Append(('  "timeStamp":"2018-07-01T18:24:02.662Z",     ').Trim);
+    LJson.Append(('  "host":"localhost",                         ').Trim);
+    LJson.Append(('  "process":"MyProcess",                      ').Trim);
+    LJson.Append(('  "processId":99,                             ').Trim);
+    LJson.Append(('  "text":"This is an updated test message with an ID!" ').Trim);
+    LJson.Append(('}                                             ').Trim);
 
-    LEndpoint := TEndpointClient.Create(ENDPOINT, PORT, String.Empty,String.Empty, String.Format('%s/message/%s', [FormatDateTime('YYYYMMDD', LSyslog.TimeStamp), LSyslog.DocumentID]));
+    LEndpoint := TEndpointClient.Create(ENDPOINT, PORT, String.Empty,String.Empty, '2018-07-01/message/DocID01');
     try
-      LEndpoint.Put(LSyslog.AsJson);
+      LEndpoint.Put(LJson.ToString);
       if LEndpoint.StatusCode in [200, 201] then
-        memMain.Lines.Add(String.Format('Put %s: %s', [LEndpoint.FullURL, LSyslog.AsJson ]))
+        memMain.Lines.Add(String.Format('Put %s: %s', [LEndpoint.FullURL, LJson.ToString ]))
       else
         memMain.Lines.Add(String.Format('Failed Put %s', [LEndpoint.StatusText ]));
     finally
@@ -238,31 +268,33 @@ begin
     end;
 
   finally
-    LSyslog.Free;
+    LJson.Free;
   end;
 end;
 
 procedure TfmMain.btnAddSyslogWithNoIDClick(Sender: TObject);
 var
-  LSyslog: TSyslogMessage;
+  LJson: TStringBuilder;
   LEndpoint: TEndpointClient;
 begin
-  LSyslog := TSyslogMessage.Create;
+  LJson := TStringBuilder.Create;
   try
-    LSyslog.MessageType := 'BSD';
-    LSyslog.Facility := 'SystemDaemon';
-    LSyslog.Severity := 'Emergency';
-    LSyslog.TimeStamp := Now;
-    LSyslog.Host := 'localhost';
-    LSyslog.Process := 'MyProcess';
-    LSyslog.ProcessID := 100;
-    LSyslog.MessageContent := 'Opps! There''s an emergency!';
+    LJson.Append(('{                                             ').Trim);
+    LJson.Append(('  "type":"BSD",                               ').Trim);
+    LJson.Append(('  "facility":"SystemDaemon",                   ').Trim);
+    LJson.Append(('  "severity":"Emergency",                     ').Trim);
+    LJson.Append(('  "timeStamp":"2018-07-02T18:24:02.662Z",     ').Trim);
+    LJson.Append(('  "host":"localhost",                         ').Trim);
+    LJson.Append(('  "process":"MyProcess",                      ').Trim);
+    LJson.Append(('  "processId":99,                             ').Trim);
+    LJson.Append(('  "text":"Opps! We have an emergency!"       ').Trim);
+    LJson.Append(('}                                             ').Trim);
 
-    LEndpoint := TEndpointClient.Create(ENDPOINT, PORT, String.Empty,String.Empty, String.Format('%s/message', [FormatDateTime('YYYYMMDD', LSyslog.TimeStamp)]));
+    LEndpoint := TEndpointClient.Create(ENDPOINT, PORT, String.Empty,String.Empty, '2018-07-02/message');
     try
-      LEndpoint.Post(LSyslog.AsJson); //To autogenerate ID we use POST insted of PUT
+      LEndpoint.Post(LJson.ToString); //To autogenerate ID we use POST insted of PUT
       if LEndpoint.StatusCode in [200, 201] then
-        memMain.Lines.Add(String.Format('POST %s: %s', [LEndpoint.FullURL, LSyslog.AsJson ]))
+        memMain.Lines.Add(String.Format('POST %s: %s', [LEndpoint.FullURL, LJson.ToString ]))
       else
         memMain.Lines.Add(String.Format('Failed POST %s', [LEndpoint.StatusText ]));
     finally
@@ -270,32 +302,85 @@ begin
     end;
 
   finally
-    LSyslog.Free;
+    LJson.Free;
   end;
 end;
 
-procedure TfmMain.btnFindFileClick(Sender: TObject);
-begin
-  if not odMain.Execute then
-    EXIT;
-  ebFile.Text := odMain.FileName;
-end;
-
-procedure TfmMain.btnBulkUpdateClick(Sender: TObject);
+procedure TfmMain.btnBulkUpdateSingleIndexClick(Sender: TObject);
 var
-  LMsgList: TSyslogMessageList;
+  LJson: TStringBuilder;
+  LEndpoint: TEndpointClient;
 begin
-  if not TFile.Exists(ebFile.Text) then
-  begin
-    MessageDlg(String.Format('File %s does not exist', [ebFile.Text]), mtError, [mbOK], 0);
-    EXIT;
-  end;
-
-  LMsgList := TSyslogMessageList.LoadFromFile(ebFile.Text);
+  LJson := TStringBuilder.Create;
   try
-    BulkLoad(LMsgList);
+    LJson.Append('{"index":{}}' + #13#10);
+    LJson.Append('{"type":"BSD","facility":"MailSystem","severity":"Critical","timeStamp":"2018-06-14T06:00:00.000Z","host":"192.168.8.1","process":"SysLogSimSvc","processId":2559,' + '"text":"EVID:0018 Reconnaissance activity detected 111.148.118.9:40083 -> 161.200.1.9:443 TCP"}' + #13#10);
+    LJson.Append('{"index":{}}' + #13#10);
+    LJson.Append('{ "type":"BSD","facility":"SysLogInternal","severity":"Error","timeStamp":"2018-06-14T06:05:00.000Z","host":"192.168.8.1","process":"SysLogSimSvc","processId":2559,"text":"EVID:0043 Host: 172.10.1.14 has a vulnerability on port: 80 protocol: http"}' + #13#10);
+    LJson.Append('{"index":{}}' + #13#10);
+    LJson.Append('{ "type":"BSD","facility":"SysLogInternal","severity":"Critical","timeStamp":"2018-06-14T06:10:00.000Z","host":"192.168.8.1","process":"SysLogSimSvc","processId":2559,"text":"EVID:0042 120.213.104.204 accessed url: http:\\/\\/Website001.com at UserPC5"}' + #13#10);
+    LJson.Append('{"index":{}}' + #13#10);
+    LJson.Append('{ "type":"BSD","facility":"SystemDaemon","severity":"Emergency","timeStamp":"2018-06-14T06:15:00.000Z","host":"192.168.8.1","process":"SysLogSimSvc","processId":2559,"text":"EVID:0024 Accepted packet 66.2.30.3:40076 -> WebServer2.acme.com:1352 TCP"}' + #13#10);
+    LJson.Append('{"index":{}}' + #13#10);
+    LJson.Append('{ "type":"BSD","facility":"Kernel","severity":"Emergency","timeStamp":"2018-06-14T06:20:00.000Z","host":"192.168.8.1","process":"SysLogSimSvc","processId":2559,"text":"EVID:0000 Server2: miscellaneous log message"}' + #13#10);
+
+    LEndpoint := TEndpointClient.Create(ENDPOINT, PORT, String.Empty,String.Empty, '20180614/message/_bulk');
+    try
+      Screen.Cursor := crHourglass;
+      try
+        LEndpoint.Post(LJson.ToString); //To autogenerate ID we use POST insted of PUT
+        if LEndpoint.StatusCode in [200, 201] then
+          memMain.Lines.Add(String.Format('POST %s: %s', [LEndpoint.FullURL, LJson.ToString ]))
+        else
+          memMain.Lines.Add(String.Format('Failed POST %s', [LEndpoint.StatusText ]));
+      finally
+        Screen.Cursor := crDefault;
+      end;
+    finally
+      LEndpoint.Free;
+    end;
+
   finally
-    LMsgList.Free;
+    LJson.Free;
+  end;
+end;
+
+procedure TfmMain.btnBulkUpdateMultipleIndexClick(Sender: TObject);
+var
+  LJson: TStringBuilder;
+  LEndpoint: TEndpointClient;
+begin
+  LJson := TStringBuilder.Create;
+  try
+    LJson.Append('{"index":{"_index":"2018-06-14", "_type":"message"}}' + #13#10);
+    LJson.Append('{"type":"BSD","facility":"MailSystem","severity":"Critical","timeStamp":"2018-07-14T06:00:00.000Z","host":"192.168.8.1","process":"SysLogSimSvc","processId":2559,' + '"text":"EVID:0018 Reconnaissance activity detected 111.148.118.9:40083 -> 161.200.1.9:443 TCP"}' + #13#10);
+    LJson.Append('{"index":{"_index":"2018-06-14", "_type":"message"}}' + #13#10);
+    LJson.Append('{ "type":"BSD","facility":"SysLogInternal","severity":"Error","timeStamp":"2018-07-14T06:05:00.000Z","host":"192.168.8.1","process":"SysLogSimSvc","processId":2559,"text":"EVID:0043 Host: 172.10.1.14 has a vulnerability on port: 80 protocol: http"}' + #13#10);
+    LJson.Append('{"index":{"_index":"2018-06-14", "_type":"message"}}' + #13#10);
+    LJson.Append('{ "type":"BSD","facility":"SysLogInternal","severity":"Critical","timeStamp":"2018-07-14T06:10:00.000Z","host":"192.168.8.1","process":"SysLogSimSvc","processId":2559,"text":"EVID:0042 120.213.104.204 accessed url: http:\\/\\/Website001.com at UserPC5"}' + #13#10);
+    LJson.Append('{"index":{"_index":"2018-06-15", "_type":"message"}}' + #13#10);
+    LJson.Append('{ "type":"BSD","facility":"SystemDaemon","severity":"Emergency","timeStamp":"2018-07-15T06:15:00.000Z","host":"192.168.8.1","process":"SysLogSimSvc","processId":2559,"text":"EVID:0024 Accepted packet 66.2.30.3:40076 -> WebServer2.acme.com:1352 TCP"}' + #13#10);
+    LJson.Append('{"index":{"_index":"2018-06-15", "_type":"message"}}' + #13#10);
+    LJson.Append('{ "type":"BSD","facility":"Kernel","severity":"Emergency","timeStamp":"2018-07-15T06:20:00.000Z","host":"192.168.8.1","process":"SysLogSimSvc","processId":2559,"text":"EVID:0000 Server2: miscellaneous log message"}' + #13#10);
+
+    LEndpoint := TEndpointClient.Create(ENDPOINT, PORT, String.Empty,String.Empty, '20180614/message/_bulk');
+    try
+      Screen.Cursor := crHourglass;
+      try
+        LEndpoint.Post(LJson.ToString); //To autogenerate ID we use POST insted of PUT
+        if LEndpoint.StatusCode in [200, 201] then
+          memMain.Lines.Add(String.Format('POST %s: %s', [LEndpoint.FullURL, LJson.ToString ]))
+        else
+          memMain.Lines.Add(String.Format('Failed POST %s', [LEndpoint.StatusText ]));
+      finally
+        Screen.Cursor := crDefault;
+      end;
+    finally
+      LEndpoint.Free;
+    end;
+
+  finally
+    LJson.Free;
   end;
 end;
 

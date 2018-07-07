@@ -1,9 +1,9 @@
 object fmMain: TfmMain
-  Left = 800
-  Top = 416
+  Left = 847
+  Top = 409
   Caption = 'Elastic Delphi'
   ClientHeight = 479
-  ClientWidth = 834
+  ClientWidth = 651
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -18,7 +18,7 @@ object fmMain: TfmMain
     Left = 8
     Top = 0
     Width = 305
-    Height = 105
+    Height = 97
     Caption = 'Index Exists'
     TabOrder = 0
     object ebCheckIndex: TEdit
@@ -38,69 +38,34 @@ object fmMain: TfmMain
       OnClick = btnIndexExistsClick
     end
   end
-  object GroupBox1: TGroupBox
+  object gbCreateIndex: TGroupBox
     Left = 319
     Top = 0
-    Width = 509
-    Height = 105
+    Width = 322
+    Height = 97
     Caption = 'Create Index'
     TabOrder = 1
-    object Label1: TLabel
-      Left = 8
-      Top = 24
-      Width = 37
-      Height = 18
-      Caption = 'Name'
-    end
-    object Label2: TLabel
-      Left = 312
-      Top = 24
-      Width = 41
-      Height = 18
-      Caption = 'Shards'
-    end
-    object Label3: TLabel
-      Left = 384
-      Top = 24
-      Width = 51
-      Height = 18
-      Caption = 'Replicas'
-    end
     object ebCreateIndex: TEdit
-      Left = 8
-      Top = 42
+      Left = 3
+      Top = 24
       Width = 286
       Height = 26
       TabOrder = 0
     end
     object btnCreateIndex: TButton
-      Left = 3
-      Top = 74
+      Left = 0
+      Top = 56
       Width = 75
       Height = 25
       Caption = 'Create'
       TabOrder = 1
       OnClick = btnCreateIndexClick
     end
-    object ebCreateShards: TEdit
-      Left = 312
-      Top = 42
-      Width = 57
-      Height = 26
-      TabOrder = 2
-    end
-    object ebCreateReplicas: TEdit
-      Left = 384
-      Top = 42
-      Width = 73
-      Height = 26
-      TabOrder = 3
-    end
   end
   object memMain: TMemo
     Left = 0
     Top = 304
-    Width = 834
+    Width = 651
     Height = 175
     Align = alBottom
     Font.Charset = DEFAULT_CHARSET
@@ -111,7 +76,7 @@ object fmMain: TfmMain
     ParentFont = False
     ScrollBars = ssBoth
     TabOrder = 2
-    ExplicitWidth = 836
+    ExplicitWidth = 834
   end
   object GroupBox2: TGroupBox
     Left = 8
@@ -151,40 +116,27 @@ object fmMain: TfmMain
   object gbBulkUpdates: TGroupBox
     Left = 319
     Top = 111
-    Width = 509
+    Width = 322
     Height = 105
-    Caption = 'Bulk Updates'
+    Caption = 'Bulk Update API'
     TabOrder = 4
-    object ebFile: TEdit
-      Left = 8
-      Top = 24
-      Width = 450
-      Height = 26
+    object btnBulkUpdateSingleIndex: TButton
+      Left = 16
+      Top = 32
+      Width = 97
+      Height = 25
+      Caption = 'Single Index'
       TabOrder = 0
+      OnClick = btnBulkUpdateSingleIndexClick
     end
-    object btnFindFile: TButton
-      Left = 464
-      Top = 24
-      Width = 27
+    object btnBulkUpdateMultipleIndex: TButton
+      Left = 128
+      Top = 31
+      Width = 97
       Height = 25
-      Caption = '...'
+      Caption = 'Multiple Index'
       TabOrder = 1
-      OnClick = btnFindFileClick
+      OnClick = btnBulkUpdateMultipleIndexClick
     end
-    object btnBulkUpdate: TButton
-      Left = 3
-      Top = 64
-      Width = 75
-      Height = 25
-      Caption = 'Load'
-      TabOrder = 2
-      OnClick = btnBulkUpdateClick
-    end
-  end
-  object odMain: TOpenDialog
-    DefaultExt = 'json'
-    Filter = 'Json Files (*.json)|*.json|All Files (*.*)|*.*'
-    Left = 687
-    Top = 127
   end
 end
