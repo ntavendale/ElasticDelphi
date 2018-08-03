@@ -65,8 +65,8 @@ end;
 
 procedure TfmMain.FormInit;
 begin
-  ebCheckIndex.Text := FormatDateTime('YYYYMMDD', Date);
-  ebCreateIndex.Text := FormatDateTime('YYYYMMDD', Date);
+  ebCheckIndex.Text := FormatDateTime('YYYY-MM-DD', Date);
+  ebCreateIndex.Text := FormatDateTime('YYYY-MM-DD', Date);
 end;
 
 procedure TfmMain.CreateIndex(AIndexName: String);
@@ -105,15 +105,19 @@ end;
 procedure TfmMain.btnIndexExistsClick(Sender: TObject);
 var
   LEndpoint: TEndpointClient;
+  LResult: Integer;
 begin
   LEndpoint := TEndpointClient.Create(ENDPOINT, PORT, String.Empty,String.Empty, ebCheckIndex.Text);
   try
     Screen.Cursor := crHourglass;
     try
-      if 200 = LEndpoint.Head then
-        memMain.Lines.Add(String.Format('%s exists!', [LEndpoint.FullURL]))
+      LResult := LEndpoint.Head;
+      //If we get a 200 then the index exists!
+      if 200 = LResult then
+        memMain.Lines.Add(String.Format('%s exists! (%d)', [LEndpoint.FullURL, LResult]))
       else
-        memMain.Lines.Add(String.Format('%s does not exist!', [LEndpoint.FullURL]))
+        //Get a 404 and it's not there.
+        memMain.Lines.Add(String.Format('%s does not exist! (%d)', [LEndpoint.FullURL, LResult]))
     finally
       Screen.Cursor := crDefault;
     end;
@@ -126,6 +130,7 @@ procedure TfmMain.btnCreateIndexClick(Sender: TObject);
 var
   LJson: TStringBuilder;
   LEndPoint: TEndpointClient;
+  LPutResult: String;
 begin
   LJson := TStringBuilder.Create;
   try
@@ -141,7 +146,7 @@ begin
     try
       Screen.Cursor := crHourglass;
       try
-        LEndpoint.Put(LJson.ToString);
+        LPutResult := LEndpoint.Put(LJson.ToString);
       finally
         Screen.Cursor := crDefault;
       end;
@@ -150,7 +155,10 @@ begin
       if 200 = LEndpoint.StatusCode then
         memMain.Lines.Add(String.Format('%s created!', [LEndpoint.FullURL]))
       else
-        memMain.Lines.Add(String.Format('%s creation failed!', [LEndpoint.FullURL]))
+      begin
+        memMain.Lines.Add(String.Format('%s creation failed!', [LEndpoint.FullURL]));
+        memMain.Lines.Add(LPutResult);
+      end;
     finally
       LEndpoint.Free;
     end;
@@ -182,10 +190,12 @@ begin
     try
       Screen.Cursor := crHourglass;
       try
-        LEndpoint.Put(LJson.ToString);
+        LEndpoint.Put(LJson.ToString); //Add with a PUT when we supply Document ID (the DocID01 above).
       finally
         Screen.Cursor := crDefault;
       end;
+      //200 = OK
+      //201 = Created
       if LEndpoint.StatusCode in [200, 201] then
         memMain.Lines.Add(String.Format('Put %s: %s', [LEndpoint.FullURL, LJson.ToString ]))
       else
@@ -221,10 +231,12 @@ begin
     try
       Screen.Cursor := crHourglass;
       try
-        LEndpoint.Put(LJson.ToString);
+        LEndpoint.Put(LJson.ToString); //Update with a PUT
       finally
         Screen.Cursor := crDefault;
       end;
+      //200 = OK
+      //201 = Created
       if LEndpoint.StatusCode in [200, 201] then
         memMain.Lines.Add(String.Format('Put %s: %s', [LEndpoint.FullURL, LJson.ToString ]))
       else
@@ -263,6 +275,8 @@ begin
       finally
         Screen.Cursor := crDefault;
       end;
+      //200 = OK
+      //201 = Created
       if LEndpoint.StatusCode in [200, 201] then
         memMain.Lines.Add(String.Format('POST %s: %s', [LEndpoint.FullURL, LJson.ToString ]))
       else

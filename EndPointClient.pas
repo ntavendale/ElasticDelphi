@@ -33,8 +33,8 @@ type
       function Head(AResource: String): Integer; overload;
       function Get: String; overload;
       function Get(AResource: String): String; overload;
-      procedure Put(AContents: String); overload;
-      procedure Put(AResource: String; AContents: String); overload;
+      function Put(AContents: String): String; overload;
+      function Put(AResource: String; AContents: String): String; overload;
       procedure Post(AContents: String); overload;
       procedure Post(AResource: String; AContents: String); overload;
       function Delete: String; overload;
@@ -128,7 +128,7 @@ begin
   FResponseText := FHttp.ResponseText;
 end;
 
-procedure TEndpointClient.Put(AContents: String);
+function TEndpointClient.Put(AContents: String): String;
 var
   LStream: TStringStream;
 begin
@@ -137,7 +137,11 @@ begin
     LStream := TStringStream.Create(AContents);
     try
       FHttp.Request.Accept := 'application/json';
-      FHttp.Put(FFullURL, LStream);
+      FHttp.Request.ContentType := 'application/json';
+      Result := FHttp.Put(FFullURL, LStream);
+      FResponseCode := FHttp.ResponseCode;
+      FResponseText := FHttp.ResponseText;
+      EXIT;
     finally
       LStream.Free;
     end;
@@ -146,9 +150,17 @@ begin
   end;
   FResponseCode := FHttp.ResponseCode;
   FResponseText := FHttp.ResponseText;
+  LStream := TStringStream.Create;
+  try
+    LStream.CopyFrom(FHttp.Response.ContentStream,FHttp.Response.ContentStream.Size );
+    Result := LStream.DataString;
+  finally
+    LStream.Free;
+  end;
+
 end;
 
-procedure TEndpointClient.Put(AResource: String; AContents: String);
+function TEndpointClient.Put(AResource: String; AContents: String): String;
 var
   LStream: TStringStream;
 begin
@@ -157,6 +169,7 @@ begin
     LStream := TStringStream.Create(AContents);
     try
       FHttp.Request.Accept := 'application/json';
+      FHttp.Request.ContentType := 'application/json';
       FHttp.Put(String.Format('%s/%s', [FEndpointURL, AResource]), LStream);
     finally
       LStream.Free;
@@ -176,6 +189,7 @@ begin
   try
     LStream := TStringStream.Create(AContents);
     try
+      FHttp.Request.ContentType := 'application/json';
       FHttp.Post(FFullURL, LStream);
     finally
       LStream.Free;
@@ -195,6 +209,7 @@ begin
   try
     LStream := TStringStream.Create(AContents);
     try
+      FHttp.Request.ContentType := 'application/json';
       FHttp.Post(String.Format('%s/%s', [FEndpointURL, AResource]), LStream);
     finally
       LStream.Free;

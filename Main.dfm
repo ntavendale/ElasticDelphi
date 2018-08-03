@@ -3,7 +3,7 @@ object fmMain: TfmMain
   Top = 409
   Caption = 'Elastic Delphi'
   ClientHeight = 479
-  ClientWidth = 651
+  ClientWidth = 733
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -65,18 +65,18 @@ object fmMain: TfmMain
   object memMain: TMemo
     Left = 0
     Top = 304
-    Width = 651
+    Width = 733
     Height = 175
     Align = alBottom
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
-    Font.Height = -13
+    Font.Height = -20
     Font.Name = 'Courier'
     Font.Style = []
     ParentFont = False
     ScrollBars = ssBoth
     TabOrder = 2
-    ExplicitWidth = 834
+    ExplicitWidth = 651
   end
   object GroupBox2: TGroupBox
     Left = 8

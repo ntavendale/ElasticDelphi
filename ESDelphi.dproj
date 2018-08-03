@@ -77,7 +77,7 @@
         <DCC_RemoteDebug>true</DCC_RemoteDebug>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
-        <DCC_Define>EUREKALOG;EUREKALOG_VER7;$(DCC_Define)</DCC_Define>
+        <DCC_Define>EUREKALOG;$(DCC_Define)</DCC_Define>
         <DCC_MapFile>3</DCC_MapFile>
         <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
         <AppEnableHighDPI>true</AppEnableHighDPI>
@@ -99,7 +99,6 @@
         </DelphiCompile>
         <DCCReference Include="Main.pas">
             <Form>fmMain</Form>
-            <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="EndPointClient.pas"/>
         <BuildConfiguration Include="Release">
@@ -130,12 +129,27 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployClass Name="ProjectiOSDeviceResourceRules">
+                <DeployClass Name="DependencyModule">
+                    <Platform Name="Win32">
+                        <Operation>0</Operation>
+                        <Extensions>.dll;.bpl</Extensions>
+                    </Platform>
                     <Platform Name="iOSDevice64">
                         <Operation>1</Operation>
+                        <Extensions>.dylib</Extensions>
+                    </Platform>
+                    <Platform Name="OSX32">
+                        <RemoteDir>Contents\MacOS</RemoteDir>
+                        <Operation>1</Operation>
+                        <Extensions>.dylib</Extensions>
                     </Platform>
                     <Platform Name="iOSDevice32">
                         <Operation>1</Operation>
+                        <Extensions>.dylib</Extensions>
+                    </Platform>
+                    <Platform Name="iOSSimulator">
+                        <Operation>1</Operation>
+                        <Extensions>.dylib</Extensions>
                     </Platform>
                 </DeployClass>
                 <DeployClass Name="ProjectOSXResource">
@@ -489,27 +503,12 @@
                         <Operation>1</Operation>
                     </Platform>
                 </DeployClass>
-                <DeployClass Name="DependencyModule">
-                    <Platform Name="Win32">
-                        <Operation>0</Operation>
-                        <Extensions>.dll;.bpl</Extensions>
-                    </Platform>
+                <DeployClass Name="ProjectiOSDeviceResourceRules">
                     <Platform Name="iOSDevice64">
                         <Operation>1</Operation>
-                        <Extensions>.dylib</Extensions>
-                    </Platform>
-                    <Platform Name="OSX32">
-                        <RemoteDir>Contents\MacOS</RemoteDir>
-                        <Operation>1</Operation>
-                        <Extensions>.dylib</Extensions>
                     </Platform>
                     <Platform Name="iOSDevice32">
                         <Operation>1</Operation>
-                        <Extensions>.dylib</Extensions>
-                    </Platform>
-                    <Platform Name="iOSSimulator">
-                        <Operation>1</Operation>
-                        <Extensions>.dylib</Extensions>
                     </Platform>
                 </DeployClass>
                 <ProjectRoot Platform="iOSDevice64" Name="$(PROJECTNAME).app"/>
@@ -531,158 +530,3 @@
     <Import Project="$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj" Condition="Exists('$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj')"/>
     <Import Project="$(MSBuildProjectName).deployproj" Condition="Exists('$(MSBuildProjectName).deployproj')"/>
 </Project>
-
-<!-- EurekaLog First Line
-[Exception Log]
-EurekaLog Version=7007
-Activate=1
-Append to Log=1
-atVCL=1
-atWin32=1
-AutoCrashOperation=2
-boHandleSafeCallExceptions=1
-boUseMainModuleOptions=1
-csoAllowedRenderMethods=8
-csoShowWindowsThreads=1
-DeleteMapAfterCompile=1
-dpJCL=1
-Email Address="nigel@tavendale.com"
-Email Object="Unhandled Exception In Regisration"
-Encrypt Password=""
-Errors Terminate=3
-Freeze Timeout=1
-idEurekaLog=1
-idEurekaLogDetailed=1
-idMSClassic=1
-idStepsToReproduce=1
-InjectCode=1
-InjectInfo=1
-InjectOptions=1
-loCatchLeaks=0
-loFreeAllLeaks=1
-loHideRTLLeaks=0
-loMaxLeaks=1024
-loOnlyUnderIDE=0
-loProcessesSection=1
-mtDialog_ErrorMsgCaption="An error has occurred during program execution.\r\nPlease read the following information for further details."
-mtException_LeakMemoryOverrun="Memory Overrun leak."
-mtException_LeakMultiFree="Multi Free memory leak."
-mtFileCrackedMsg="This file is cracked.\r\nThe application will be closed."
-mtLog_OSCharset="Charset"
-mtLog_OSLanguage="Language"
-mtMSDialog_DescriptionCaption="We have created an error report that you can send to us. We will treat this report as confidential and anonymous."
-mtMSDialog_EmailCaption="Email address (optional):"
-mtMSDialog_ErrorMsgCaption="The application has encountered a problem. We are sorry for the inconvenience."
-mtMSDialog_RestartCaption="Restart application."
-mtMSDialog_SeeDetailsCaption="To see what data the error report contains,"
-mtMSDialog_TerminateCaption="Terminate application."
-mtReproduceDialog_Caption="Request"
-mtSend_BugClosedMsg="These BUG is just closed.\r\nContact the program support to obtain an update."
-mtSend_FailureMsg="Sorry, sending the message didn't work."
-mtSend_SuccessMsg="The message was sent successfully."
-mtSendDialog_Caption="Send."
-mtSendDialog_Connected="Connected with server."
-mtSendDialog_Connecting="Connecting with server..."
-mtSendDialog_Login="Login..."
-mtSendDialog_SelectProject="Select project..."
-Output Path="%%UserProfile%%\\"
-ProjectID="{B63B6F4F-77F9-4A60-8BD3-D40641B4156E}"
-seFogBugz=1
-Sender Classes="TELTrackerFogBugzSender"
-SMTP From="eurekalog@email.com"
-SMTP Host=""
-SMTP UserID=""
-sndAddDateInFileName=0
-sndBugZillaAppendText=1
-sndBugZillaLogin=""
-sndBugZillaPort=0
-sndBugZillaURL=""
-sndFogBugzAppendText=1
-sndFogBugzArea="Registration"
-sndFogBugzCategory="Application Exception"
-sndFogBugzHost="https://medlynx.fogbugz.com"
-sndFogBugzLogin="aholmayer@rhilive.com"
-sndFogBugzOwner="ntavendale@oamarugroup.com"
-sndFogBugzPassword="BugUser01"
-sndFogBugzPort=443
-sndFogBugzProject="MedLynx"
-sndFogBugzSSL=1
-sndFTPLogin=""
-sndFTPPort=0
-sndFTPURL=""
-sndHTTPPort=0
-sndHTTPURL=""
-sndJIRAAppendText=1
-sndJIRAHost=""
-sndJIRALogin=""
-sndJIRAPort=0
-sndMantisAppendText=1
-sndMantisLogin=""
-sndMantisPort=0
-sndMantisURL=""
-sndMAPIAppendLogs=1
-sndMAPISubject="Unhandled Exception In Regisration"
-sndMAPITarget="nigel@tavendale.com"
-sndSendEntireLog=1
-sndShellRecepient="nigel@tavendale.com"
-sndShellSubject="Unhandled Exception In Regisration"
-sndSMAPIAppendLogs=1
-sndSMAPISubject="Unhandled Exception In Regisration"
-sndSMAPITarget="nigel@tavendale.com"
-sndSMTPClientAppendLogs=1
-sndSMTPClientFrom="eurekalog@email.com"
-sndSMTPClientHost=""
-sndSMTPClientLogin=""
-sndSMTPClientSubject="Unhandled Exception In Regisration"
-sndSMTPClientTarget="nigel@tavendale.com"
-sndSMTPServerAppendLogs=1
-sndSMTPServerFrom="eurekalog@email.com"
-sndSMTPServerSubject="Unhandled Exception In Regisration"
-sndSMTPServerTarget="nigel@tavendale.com"
-soActCtlsControlClass=1
-soActCtlsControlText=1
-soActCtlsFormClass=1
-soActCtlsFormText=1
-soAppCompilationDate=1
-soAppName=1
-soAppParameters=1
-soAppStartDate=1
-soAppUpTime=1
-soAppVersionNumber=1
-soCmpDisplayDPI=1
-soCmpDisplayMode=1
-soCmpFreeDisk=1
-soCmpFreeMemory=1
-soCmpName=1
-soCmpPrinter=1
-soCmpProcessor=1
-soCmpSysUpTime=1
-soCmpTotalDisk=1
-soCmpTotalMemory=1
-soCmpVideoCard=1
-soCustomData=1
-soExcCount=1
-soExcDate=1
-soExcModuleName=1
-soExcModuleVersion=1
-soExcNote=1
-soExcStatus=1
-soNetDHCP=1
-soNetDNS1=1
-soNetDNS2=1
-soNetGateway=1
-soNetIP=1
-soNetSubmask=1
-soOSBuildN=1
-soOSCharset=1
-soOSLanguage=1
-soOSType=1
-soOSUpdate=1
-soUserCompany=1
-soUserID=1
-soUserPrivileges=1
-TextsCollection=""
-TrakerUser=""
-WebPort=0
-WebURL=""
-EurekaLog Last Line -->
