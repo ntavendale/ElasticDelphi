@@ -29,7 +29,7 @@ object fmMain: TfmMain
       TabOrder = 0
     end
     object btnIndexExists: TButton
-      Left = 3
+      Left = 0
       Top = 56
       Width = 75
       Height = 25
@@ -76,7 +76,6 @@ object fmMain: TfmMain
     ParentFont = False
     ScrollBars = ssBoth
     TabOrder = 2
-    ExplicitWidth = 651
   end
   object GroupBox2: TGroupBox
     Left = 8

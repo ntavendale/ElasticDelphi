@@ -137,7 +137,7 @@ begin
     LJson.Append(('{                                                          ').Trim);
     LJson.Append(('    "settings" : {                                         ').Trim);
     LJson.Append(('                    "index" : {                            ').Trim);
-    LJson.Append(('                                 "number_of_shards" : 5,   ').Trim);
+    LJson.Append(('                                 "number_of_shards" : 4,   ').Trim);
     LJson.Append(('                                 "number_of_replicas" : 2  ').Trim);
     LJson.Append(('                               }                           ').Trim);
     LJson.Append(('                  }                                        ').Trim);
@@ -308,7 +308,7 @@ begin
     LJson.Append('{"index":{}}' + #13#10);
     LJson.Append('{ "type":"BSD","facility":"Kernel","severity":"Emergency","timeStamp":"2018-06-14T06:20:00.000Z","host":"192.168.8.1","process":"SysLogSimSvc","processId":2559,"text":"EVID:0000 Server2: miscellaneous log message"}' + #13#10);
 
-    LEndpoint := TEndpointClient.Create(ENDPOINT, PORT, String.Empty,String.Empty, '20180614/message/_bulk');
+    LEndpoint := TEndpointClient.Create(ENDPOINT, PORT, String.Empty,String.Empty, '2018-06-14/message/_bulk');
     try
       Screen.Cursor := crHourglass;
       try
@@ -339,15 +339,15 @@ begin
     LJson.Append('{"index":{"_index":"2018-06-14", "_type":"message"}}' + #13#10);
     LJson.Append('{"type":"BSD","facility":"MailSystem","severity":"Critical","timeStamp":"2018-07-14T06:00:00.000Z","host":"192.168.8.1","process":"SysLogSimSvc","processId":2559,' + '"text":"EVID:0018 Reconnaissance activity detected 111.148.118.9:40083 -> 161.200.1.9:443 TCP"}' + #13#10);
     LJson.Append('{"index":{"_index":"2018-06-14", "_type":"message"}}' + #13#10);
-    LJson.Append('{ "type":"BSD","facility":"SysLogInternal","severity":"Error","timeStamp":"2018-07-14T06:05:00.000Z","host":"192.168.8.1","process":"SysLogSimSvc","processId":2559,"text":"EVID:0043 Host: 172.10.1.14 has a vulnerability on port: 80 protocol: http"}' + #13#10);
+    LJson.Append('{ "type":"BSD","facility":"SysLogInternal","severity":"Error","timeStamp":"2018-07-14T06:05:00.000Z","host":"192.168.8.1","process":"SysLogSimSvc","processId":2559,"text":"EVID:0043 Host: 111.148.118.94 has a vulnerability on port: 80 protocol: http"}' + #13#10);
     LJson.Append('{"index":{"_index":"2018-06-14", "_type":"message"}}' + #13#10);
-    LJson.Append('{ "type":"BSD","facility":"SysLogInternal","severity":"Critical","timeStamp":"2018-07-14T06:10:00.000Z","host":"192.168.8.1","process":"SysLogSimSvc","processId":2559,"text":"EVID:0042 120.213.104.204 accessed url: http:\\/\\/Website001.com at UserPC5"}' + #13#10);
+    LJson.Append('{ "type":"BSD","facility":"SysLogInternal","severity":"Critical","timeStamp":"2018-07-14T06:10:00.000Z","host":"192.168.8.1","process":"SysLogSimSvc","processId":2559,"text":"EVID:0042 111.148.118.9 accessed url: http:\/\/Website001.com at UserPC5"}' + #13#10);
     LJson.Append('{"index":{"_index":"2018-06-15", "_type":"message"}}' + #13#10);
     LJson.Append('{ "type":"BSD","facility":"SystemDaemon","severity":"Emergency","timeStamp":"2018-07-15T06:15:00.000Z","host":"192.168.8.1","process":"SysLogSimSvc","processId":2559,"text":"EVID:0024 Accepted packet 66.2.30.3:40076 -> WebServer2.acme.com:1352 TCP"}' + #13#10);
     LJson.Append('{"index":{"_index":"2018-06-15", "_type":"message"}}' + #13#10);
     LJson.Append('{ "type":"BSD","facility":"Kernel","severity":"Emergency","timeStamp":"2018-07-15T06:20:00.000Z","host":"192.168.8.1","process":"SysLogSimSvc","processId":2559,"text":"EVID:0000 Server2: miscellaneous log message"}' + #13#10);
 
-    LEndpoint := TEndpointClient.Create(ENDPOINT, PORT, String.Empty,String.Empty, '20180614/message/_bulk');
+    LEndpoint := TEndpointClient.Create(ENDPOINT, PORT, String.Empty,String.Empty, '_bulk');
     try
       Screen.Cursor := crHourglass;
       try

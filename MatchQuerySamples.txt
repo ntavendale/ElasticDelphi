@@ -1,0 +1,11 @@
+{
+    "query":{
+        "match":{ "text": "EVID:0043 Host: 111.148.118.94 has a vulnerability on port: 80 protocol: http"}
+    }
+}
+
+{
+    "query":{
+        "match":{ "text": "supercalifragilisticexpialidocious"}
+    }
+}
