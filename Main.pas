@@ -138,7 +138,7 @@ begin
     LJson.Append(('    "settings" : {                                         ').Trim);
     LJson.Append(('                    "index" : {                            ').Trim);
     LJson.Append(('                                 "number_of_shards" : 4,   ').Trim);
-    LJson.Append(('                                 "number_of_replicas" : 2  ').Trim);
+    LJson.Append(('                                 "number_of_replicas" : 0  ').Trim);
     LJson.Append(('                               }                           ').Trim);
     LJson.Append(('                  }                                        ').Trim);
     LJson.Append(('}                                                          ').Trim);
@@ -351,7 +351,7 @@ begin
     try
       Screen.Cursor := crHourglass;
       try
-        LEndpoint.Post(LJson.ToString); //To autogenerate ID we use POST insted of PUT
+        LEndpoint.Post(LJson.ToString);
         if LEndpoint.StatusCode in [200, 201] then
           memMain.Lines.Add(String.Format('POST %s: %s', [LEndpoint.FullURL, LJson.ToString ]))
         else
