@@ -1,6 +1,6 @@
 object fmMain: TfmMain
-  Left = 362
-  Top = 202
+  Left = 896
+  Top = 289
   Caption = 'Elastic Delphi'
   ClientHeight = 479
   ClientWidth = 733
