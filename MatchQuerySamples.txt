@@ -1,6 +1,32 @@
+#Simple match query
 {
     "query":{
-        "match":{ "text": "EVID:0043 Host: 111.148.118.94 has a vulnerability on port: 80 protocol: http"}
+        "match":{ "text": "EVID what day"}
+    }
+}
+#This or Query is the same as the simple query above.
+#Or is the default so match needs one, two or three of them present to hit.
+{
+    "query": {
+        "match" : {
+            "text" : {
+                "query":"EVID what day",
+                "operator" : "or"
+            }
+        }
+    }
+}
+
+#This query uses an and operator. All the tokens must be there!
+
+{
+    "query": {
+        "match" : {
+            "text" : {
+                "query":"EVID what day",
+                "operator" : "and"
+            }
+        }
     }
 }
 
