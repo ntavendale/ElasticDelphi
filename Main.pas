@@ -15,9 +15,6 @@ uses
   System.Generics.Collections, System.Classes, System.UITypes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, System.JSON, EndpointClient;
 
-const
-  ENDPOINT = 'http://127.0.0.1';
-  PORT = 9200;
 type
   TfmMain = class(TForm)
     gbIndexExists: TGroupBox;
@@ -34,6 +31,7 @@ type
     gbBulkUpdates: TGroupBox;
     btnBulkUpdateSingleIndex: TButton;
     btnBulkUpdateMultipleIndex: TButton;
+    btnDelete: TButton;
     procedure btnIndexExistsClick(Sender: TObject);
     procedure btnCreateIndexClick(Sender: TObject);
     procedure btnAddSyslogWithIDClick(Sender: TObject);
@@ -41,6 +39,7 @@ type
     procedure btnAddSyslogWithNoIDClick(Sender: TObject);
     procedure btnBulkUpdateSingleIndexClick(Sender: TObject);
     procedure btnBulkUpdateMultipleIndexClick(Sender: TObject);
+    procedure btnDeleteClick(Sender: TObject);
   private
     { Private declarations }
     procedure FormInit;
@@ -74,7 +73,7 @@ var
   LEndpoint: TEndpointClient;
   LIndexDetail: TStringList;
 begin
-  LEndpoint := TEndpointClient.Create(ENDPOINT, PORT, String.Empty,String.Empty, AIndexName);
+  LEndpoint := TEndpointClient.Create('http://127.0.0.1', 9200, String.Empty,String.Empty, AIndexName);
   try
     LIndexDetail := TStringList.Create;
     try
@@ -107,7 +106,7 @@ var
   LEndpoint: TEndpointClient;
   LResult: Integer;
 begin
-  LEndpoint := TEndpointClient.Create(ENDPOINT, PORT, String.Empty,String.Empty, ebCheckIndex.Text);
+  LEndpoint := TEndpointClient.Create('http://127.0.0.1', 9200, String.Empty,String.Empty, ebCheckIndex.Text);
   try
     Screen.Cursor := crHourglass;
     try
@@ -142,7 +141,7 @@ begin
     LJson.Append(('                               }                           ').Trim);
     LJson.Append(('                  }                                        ').Trim);
     LJson.Append(('}                                                          ').Trim);
-    LEndPoint := TEndpointClient.Create(ENDPOINT, PORT, String.Empty,String.Empty, ebCreateIndex.Text);
+    LEndPoint := TEndpointClient.Create('http://127.0.0.1', 9200, String.Empty,String.Empty, ebCreateIndex.Text);
     try
       Screen.Cursor := crHourglass;
       try
@@ -186,7 +185,7 @@ begin
     LJson.Append(('  "text":"This is a test message with an ID!" ').Trim);
     LJson.Append(('}                                             ').Trim);
 
-    LEndpoint := TEndpointClient.Create(ENDPOINT, PORT, String.Empty,String.Empty, '2018-07-01/message/DocID01');
+    LEndpoint := TEndpointClient.Create('http://127.0.0.1', 9200, String.Empty,String.Empty, '2018-07-01/message/DocID01');
     try
       Screen.Cursor := crHourglass;
       try
@@ -227,7 +226,7 @@ begin
     LJson.Append(('  "text":"This is an updated test message with an ID!" ').Trim);
     LJson.Append(('}                                             ').Trim);
 
-    LEndpoint := TEndpointClient.Create(ENDPOINT, PORT, String.Empty,String.Empty, '2018-07-01/message/DocID01');
+    LEndpoint := TEndpointClient.Create('http://127.0.0.1', 9200, String.Empty,String.Empty, '2018-07-01/message/DocID01');
     try
       Screen.Cursor := crHourglass;
       try
@@ -267,7 +266,7 @@ begin
     LJson.Append(('  "text":"Opps! We have an emergency!"       ').Trim);
     LJson.Append(('}                                             ').Trim);
 
-    LEndpoint := TEndpointClient.Create(ENDPOINT, PORT, String.Empty,String.Empty, '2018-07-02/message');
+    LEndpoint := TEndpointClient.Create('http://127.0.0.1', 9200, String.Empty,String.Empty, '2018-07-02/message');
     try
       Screen.Cursor := crHourglass;
       try
@@ -308,7 +307,7 @@ begin
     LJson.Append('{"index":{}}' + #13#10);
     LJson.Append('{ "type":"BSD","facility":"Kernel","severity":"Emergency","timeStamp":"2018-06-14T06:20:00.000Z","host":"192.168.8.1","process":"SysLogSimSvc","processId":2559,"text":"EVID:0000 Server2: miscellaneous log message"}' + #13#10);
 
-    LEndpoint := TEndpointClient.Create(ENDPOINT, PORT, String.Empty,String.Empty, '2018-06-14/message/_bulk');
+    LEndpoint := TEndpointClient.Create('http://127.0.0.1', 9200, String.Empty,String.Empty, '2018-06-14/message/_bulk');
     try
       Screen.Cursor := crHourglass;
       try
@@ -347,7 +346,7 @@ begin
     LJson.Append('{"index":{"_index":"2018-06-15", "_type":"message"}}' + #13#10);
     LJson.Append('{ "type":"BSD","facility":"Kernel","severity":"Emergency","timeStamp":"2018-07-15T06:20:00.000Z","host":"192.168.8.1","process":"SysLogSimSvc","processId":2559,"text":"EVID:0000 Server2: miscellaneous log message"}' + #13#10);
 
-    LEndpoint := TEndpointClient.Create(ENDPOINT, PORT, String.Empty,String.Empty, '_bulk');
+    LEndpoint := TEndpointClient.Create('http://127.0.0.1', 9200, String.Empty,String.Empty, '_bulk');
     try
       Screen.Cursor := crHourglass;
       try
@@ -365,6 +364,30 @@ begin
 
   finally
     LJson.Free;
+  end;
+end;
+
+procedure TfmMain.btnDeleteClick(Sender: TObject);
+var
+  LEndpoint: TEndpointClient;
+  LResponse: String;
+begin
+  LEndpoint := TEndpointClient.Create('http://127.0.0.1', 9200, String.Empty,String.Empty, '2018-07-01/message/DocID01');
+  try
+    Screen.Cursor := crHourglass;
+    try
+      LResponse := LEndpoint.Delete;
+    finally
+      Screen.Cursor := crDefault;
+    end;
+    //200 = OK
+    //201 = Created
+    if LEndpoint.StatusCode in [200, 201] then
+      memMain.Lines.Add(String.Format('Deleted %s: %s', [LEndpoint.FullURL, LResponse ]))
+    else
+      memMain.Lines.Add(String.Format('Failed Delete %s', [LEndpoint.StatusText ]));
+  finally
+    LEndpoint.Free;
   end;
 end;
 

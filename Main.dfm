@@ -1,6 +1,6 @@
 object fmMain: TfmMain
-  Left = 896
-  Top = 289
+  Left = 719
+  Top = 319
   Caption = 'Elastic Delphi'
   ClientHeight = 479
   ClientWidth = 733
@@ -64,9 +64,9 @@ object fmMain: TfmMain
   end
   object memMain: TMemo
     Left = 0
-    Top = 304
+    Top = 264
     Width = 733
-    Height = 175
+    Height = 215
     Align = alBottom
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
@@ -81,7 +81,7 @@ object fmMain: TfmMain
     Left = 8
     Top = 111
     Width = 305
-    Height = 105
+    Height = 138
     Caption = 'Add SysLog'
     TabOrder = 3
     object btnAddSyslogWithID: TButton
@@ -110,6 +110,15 @@ object fmMain: TfmMain
       Caption = 'Add With No ID'
       TabOrder = 2
       OnClick = btnAddSyslogWithNoIDClick
+    end
+    object btnDelete: TButton
+      Left = 16
+      Top = 96
+      Width = 105
+      Height = 25
+      Caption = 'Delete'
+      TabOrder = 3
+      OnClick = btnDeleteClick
     end
   end
   object gbBulkUpdates: TGroupBox
