@@ -131,17 +131,20 @@ var
   LEndPoint: TEndpointClient;
   LPutResult: String;
 begin
+  //Standard Procedure
+  //1 - Creaste a TStringBuilder And Add the Request Json To it
+  //2 - Use ToString to get the Request.
   LJson := TStringBuilder.Create;
   try
     LJson.Append(('{                                                          ').Trim);
     LJson.Append(('    "settings" : {                                         ').Trim);
     LJson.Append(('                    "index" : {                            ').Trim);
-    LJson.Append(('                                 "number_of_shards" : 4,   ').Trim);
-    LJson.Append(('                                 "number_of_replicas" : 0  ').Trim);
+    LJson.Append(('                                 "number_of_shards" : 5,   ').Trim); //5 is default
+    LJson.Append(('                                 "number_of_replicas" : 0  ').Trim); //2 is default but we use 0 here since we have only one node.
     LJson.Append(('                               }                           ').Trim);
     LJson.Append(('                  }                                        ').Trim);
     LJson.Append(('}                                                          ').Trim);
-    LEndPoint := TEndpointClient.Create('http://127.0.0.1', 9200, String.Empty,String.Empty, ebCreateIndex.Text);
+    LEndPoint := TEndpointClient.Create('http://127.0.0.1', 9200, String.Empty, String.Empty, ebCreateIndex.Text);
     try
       Screen.Cursor := crHourglass;
       try
@@ -172,6 +175,9 @@ var
   LJSon: TStringBuilder;
   LEndpoint: TEndpointClient;
 begin
+  //Standard Procedure
+  //1 - Creaste a TStringBuilder And Add the Request Json To it
+  //2 - Use ToString to get the Request.
   LJson := TStringBuilder.Create;
   try
     LJson.Append(('{                                             ').Trim);
@@ -189,11 +195,11 @@ begin
     try
       Screen.Cursor := crHourglass;
       try
-        LEndpoint.Put(LJson.ToString); //Add with a PUT when we supply Document ID (the DocID01 above).
+        LEndpoint.Put(LJson.ToString); //Add with a PUT when we supply Document ID (the "DocID01" in the above URL).
       finally
         Screen.Cursor := crDefault;
       end;
-      //200 = OK
+      //200 = OK (If it allready exists)
       //201 = Created
       if LEndpoint.StatusCode in [200, 201] then
         memMain.Lines.Add(String.Format('Put %s: %s', [LEndpoint.FullURL, LJson.ToString ]))
@@ -213,6 +219,9 @@ var
   LJson: TStringBuilder;
   LEndpoint: TEndpointClient;
 begin
+  //Standard Procedure
+  //1 - Creaste a TStringBuilder And Add the Request Json To it
+  //2 - Use ToString to get the Request.
   LJson := TStringBuilder.Create;
   try
     LJson.Append(('{                                             ').Trim);
@@ -234,7 +243,7 @@ begin
       finally
         Screen.Cursor := crDefault;
       end;
-      //200 = OK
+      //200 = OK (If it allready exists)
       //201 = Created
       if LEndpoint.StatusCode in [200, 201] then
         memMain.Lines.Add(String.Format('Put %s: %s', [LEndpoint.FullURL, LJson.ToString ]))
@@ -253,6 +262,9 @@ var
   LJson: TStringBuilder;
   LEndpoint: TEndpointClient;
 begin
+  //Standard Procedure
+  //1 - Creaste a TStringBuilder And Add the Request Json To it
+  //2 - Use ToString to get the Request.
   LJson := TStringBuilder.Create;
   try
     LJson.Append(('{                                             ').Trim);
@@ -274,8 +286,6 @@ begin
       finally
         Screen.Cursor := crDefault;
       end;
-      //200 = OK
-      //201 = Created
       if LEndpoint.StatusCode in [200, 201] then
         memMain.Lines.Add(String.Format('POST %s: %s', [LEndpoint.FullURL, LJson.ToString ]))
       else
@@ -294,8 +304,13 @@ var
   LJson: TStringBuilder;
   LEndpoint: TEndpointClient;
 begin
+  //Standard Procedure
+  //1 - Creaste a TStringBuilder And Add the Request Json To it
+  //2 - Use ToString to get the Request.
   LJson := TStringBuilder.Create;
   try
+    //Index and type information will be empty since we specify it in the resource we are posting to
+    //but we still need to have that lkine present.
     LJson.Append('{"index":{}}' + #13#10);
     LJson.Append('{"type":"BSD","facility":"MailSystem","severity":"Critical","timeStamp":"2018-06-14T06:00:00.000Z","host":"192.168.8.1","process":"SysLogSimSvc","processId":2559,' + '"text":"EVID:0018 Reconnaissance activity detected 111.148.118.9:40083 -> 161.200.1.9:443 TCP"}' + #13#10);
     LJson.Append('{"index":{}}' + #13#10);
@@ -307,11 +322,12 @@ begin
     LJson.Append('{"index":{}}' + #13#10);
     LJson.Append('{ "type":"BSD","facility":"Kernel","severity":"Emergency","timeStamp":"2018-06-14T06:20:00.000Z","host":"192.168.8.1","process":"SysLogSimSvc","processId":2559,"text":"EVID:0000 Server2: miscellaneous log message"}' + #13#10);
 
+    //Use index and type here since it is a single index
     LEndpoint := TEndpointClient.Create('http://127.0.0.1', 9200, String.Empty,String.Empty, '2018-06-14/message/_bulk');
     try
       Screen.Cursor := crHourglass;
       try
-        LEndpoint.Post(LJson.ToString); //To autogenerate ID we use POST insted of PUT
+        LEndpoint.Post(LJson.ToString);
         if LEndpoint.StatusCode in [200, 201] then
           memMain.Lines.Add(String.Format('POST %s: %s', [LEndpoint.FullURL, LJson.ToString ]))
         else
@@ -335,6 +351,8 @@ var
 begin
   LJson := TStringBuilder.Create;
   try
+    //Index and type information will be specified on each line since we are
+    //updating multiple indexes with a single POST
     LJson.Append('{"index":{"_index":"2018-06-14", "_type":"message"}}' + #13#10);
     LJson.Append('{"type":"BSD","facility":"MailSystem","severity":"Critical","timeStamp":"2018-07-14T06:00:00.000Z","host":"192.168.8.1","process":"SysLogSimSvc","processId":2559,' + '"text":"EVID:0018 Oh what a lovely day!"}' + #13#10);
     LJson.Append('{"index":{"_index":"2018-06-14", "_type":"message"}}' + #13#10);
@@ -346,6 +364,7 @@ begin
     LJson.Append('{"index":{"_index":"2018-06-15", "_type":"message"}}' + #13#10);
     LJson.Append('{ "type":"BSD","facility":"Kernel","severity":"Emergency","timeStamp":"2018-07-15T06:20:00.000Z","host":"192.168.8.1","process":"SysLogSimSvc","processId":2559,"text":"EVID:0000 Server2: miscellaneous log message"}' + #13#10);
 
+    //Just use _bulk endpoint since indexes and types specified for each document
     LEndpoint := TEndpointClient.Create('http://127.0.0.1', 9200, String.Empty,String.Empty, '_bulk');
     try
       Screen.Cursor := crHourglass;
@@ -372,6 +391,8 @@ var
   LEndpoint: TEndpointClient;
   LResponse: String;
 begin
+  //Will delete and flush the Lucene index underneath. This call may return
+  //before that occurs.
   LEndpoint := TEndpointClient.Create('http://127.0.0.1', 9200, String.Empty,String.Empty, '2018-07-01/message/DocID01');
   try
     Screen.Cursor := crHourglass;
@@ -380,8 +401,6 @@ begin
     finally
       Screen.Cursor := crDefault;
     end;
-    //200 = OK
-    //201 = Created
     if LEndpoint.StatusCode in [200, 201] then
       memMain.Lines.Add(String.Format('Deleted %s: %s', [LEndpoint.FullURL, LResponse ]))
     else
