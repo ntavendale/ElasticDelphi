@@ -13,25 +13,34 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.IOUtils, System.SysUtils, System.Variants,
   System.Generics.Collections, System.Classes, System.UITypes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, System.JSON, EndpointClient;
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, System.JSON, EndpointClient,
+  Vcl.ComCtrls;
 
 type
   TfmMain = class(TForm)
+    memMain: TMemo;
+    pcElastic: TPageControl;
+    tsBasics: TTabSheet;
     gbIndexExists: TGroupBox;
     ebCheckIndex: TEdit;
     btnIndexExists: TButton;
     gbCreateIndex: TGroupBox;
     ebCreateIndex: TEdit;
     btnCreateIndex: TButton;
-    memMain: TMemo;
     GroupBox2: TGroupBox;
     btnAddSyslogWithID: TButton;
     btnUpdateSyslogWithID: TButton;
     btnAddSyslogWithNoID: TButton;
+    btnDelete: TButton;
     gbBulkUpdates: TGroupBox;
     btnBulkUpdateSingleIndex: TButton;
     btnBulkUpdateMultipleIndex: TButton;
-    btnDelete: TButton;
+    tsCustomMapping: TTabSheet;
+    gbIndexThenMapping: TGroupBox;
+    btnPutIndex: TButton;
+    ebIndexName: TEdit;
+    btnPutMapping: TButton;
+    ebMappingName: TEdit;
     procedure btnIndexExistsClick(Sender: TObject);
     procedure btnCreateIndexClick(Sender: TObject);
     procedure btnAddSyslogWithIDClick(Sender: TObject);
@@ -40,6 +49,8 @@ type
     procedure btnBulkUpdateSingleIndexClick(Sender: TObject);
     procedure btnBulkUpdateMultipleIndexClick(Sender: TObject);
     procedure btnDeleteClick(Sender: TObject);
+    procedure btnPutIndexClick(Sender: TObject);
+    procedure btnPutMappingClick(Sender: TObject);
   private
     { Private declarations }
     procedure FormInit;
@@ -407,6 +418,118 @@ begin
       memMain.Lines.Add(String.Format('Failed Delete %s', [LEndpoint.StatusText ]));
   finally
     LEndpoint.Free;
+  end;
+end;
+
+procedure TfmMain.btnPutIndexClick(Sender: TObject);
+var
+  LJson: TStringBuilder;
+  LEndPoint: TEndpointClient;
+  LPutResult: String;
+begin
+  //Standard Procedure
+  //1 - Creaste a TStringBuilder And Add the Request Json To it
+  //2 - Use ToString to get the Request.
+  LJson := TStringBuilder.Create;
+  try
+    LJson.Append(('{                                                          ').Trim);
+    LJson.Append(('    "settings" : {                                         ').Trim);
+    LJson.Append(('                    "index" : {                            ').Trim);
+    LJson.Append(('                                 "number_of_shards" : 5,   ').Trim); //5 is default
+    LJson.Append(('                                 "number_of_replicas" : 0  ').Trim); //2 is default but we use 0 here since we have only one node.
+    LJson.Append(('                               }                           ').Trim);
+    LJson.Append(('                  }                                        ').Trim);
+    LJson.Append(('}                                                          ').Trim);
+    LEndPoint := TEndpointClient.Create('http://127.0.0.1', 9200, String.Empty, String.Empty, ebIndexName.Text);
+    try
+      Screen.Cursor := crHourglass;
+      try
+        LPutResult := LEndpoint.Put(LJson.ToString);
+      finally
+        Screen.Cursor := crDefault;
+      end;
+
+      memMain.Lines.Add(String.Format('Put %s to %s', [LJson.ToString, LEndpoint.FullURL ]));
+      if 200 = LEndpoint.StatusCode then
+        memMain.Lines.Add(String.Format('%s created!', [LEndpoint.FullURL]))
+      else
+      begin
+        memMain.Lines.Add(String.Format('%s creation failed!', [LEndpoint.FullURL]));
+        memMain.Lines.Add(LPutResult);
+      end;
+    finally
+      LEndpoint.Free;
+    end;
+
+  finally
+    LJson.Free;
+  end;
+end;
+
+procedure TfmMain.btnPutMappingClick(Sender: TObject);
+var
+  LJson: TStringBuilder;
+  LEndPoint: TEndpointClient;
+  LPutResult: String;
+begin
+  //Standard Procedure
+  //1 - Creaste a TStringBuilder And Add the Request Json To it
+  //2 - Use ToString to get the Request.
+  LJson := TStringBuilder.Create;
+  try
+    LJson.Append(('{                                 ').Trim);
+    LJson.Append(('    "properties" : {              ').Trim);
+    LJson.Append(('        "type" : {                ').Trim);
+    LJson.Append(('            "type" : "keyword"    ').Trim);
+    LJson.Append(('        },                        ').Trim);
+    LJson.Append(('        "facility" : {            ').Trim);
+    LJson.Append(('            "type" : "keyword"    ').Trim);
+    LJson.Append(('        },                        ').Trim);
+    LJson.Append(('        "severity" : {            ').Trim);
+    LJson.Append(('            "type" : "keyword"    ').Trim);
+    LJson.Append(('        },                        ').Trim);
+    LJson.Append(('        "timestamp" : {           ').Trim);
+    LJson.Append(('            "type" : "date"       ').Trim);
+    LJson.Append(('        },                        ').Trim);
+    LJson.Append(('        "host" : {                ').Trim);
+    LJson.Append(('            "type" : "keyword"    ').Trim);
+    LJson.Append(('        },                        ').Trim);
+    LJson.Append(('        "process" : {             ').Trim);
+    LJson.Append(('            "type" : "keyword",   ').Trim);
+    LJson.Append(('            "ignore_above" : 100  ').Trim);
+    LJson.Append(('        },                        ').Trim);
+    LJson.Append(('        "processId" : {           ').Trim);
+    LJson.Append(('            "type" : "long",      ').Trim);
+    LJson.Append(('            "enabled": "false"    ').Trim);
+    LJson.Append(('        },                        ').Trim);
+    LJson.Append(('        "logMessage" : {          ').Trim);
+    LJson.Append(('            "type" : "text"       ').Trim);
+    LJson.Append(('        }                         ').Trim);
+    LJson.Append(('    }                             ').Trim);
+    LJson.Append(('}                                 ').Trim);
+    LEndPoint := TEndpointClient.Create('http://127.0.0.1', 9200, String.Empty, String.Empty, String.Format('%s/_mapping', [ebIndexName.Text]));
+    try
+      Screen.Cursor := crHourglass;
+      try
+        LPutResult := LEndpoint.Put(LJson.ToString);
+      finally
+        Screen.Cursor := crDefault;
+      end;
+
+      memMain.Lines.Add(String.Format('Put %s to %s', [LJson.ToString, LEndpoint.FullURL ]));
+      if 200 = LEndpoint.StatusCode then
+        memMain.Lines.Add(String.Format('%s created!', [LEndpoint.FullURL]))
+      else
+      begin
+        memMain.Lines.Add(String.Format('%s creation failed!', [LEndpoint.FullURL]));
+        memMain.Lines.Add(LPutResult);
+      end;
+    finally
+      LEndpoint.Free;
+    end;
+
+  finally
+    LJson.Free;
   end;
 end;
 
