@@ -1,6 +1,6 @@
 object fmMain: TfmMain
-  Left = 385
-  Top = 185
+  Left = 835
+  Top = 316
   Caption = 'Elastic Delphi'
   ClientHeight = 456
   ClientWidth = 789
@@ -28,8 +28,6 @@ object fmMain: TfmMain
     ParentFont = False
     ScrollBars = ssBoth
     TabOrder = 0
-    ExplicitTop = 264
-    ExplicitWidth = 733
   end
   object pcElastic: TPageControl
     Left = 0
@@ -41,9 +39,6 @@ object fmMain: TfmMain
     TabOrder = 1
     object tsBasics: TTabSheet
       Caption = 'Basics'
-      ExplicitTop = 0
-      ExplicitWidth = 285
-      ExplicitHeight = 189
       object gbIndexExists: TGroupBox
         Left = 8
         Top = 0
@@ -170,7 +165,7 @@ object fmMain: TfmMain
         Left = 3
         Top = 3
         Width = 286
-        Height = 174
+        Height = 198
         Caption = 'Separate Index and Mapping'
         TabOrder = 0
         object btnPutIndex: TButton
@@ -192,22 +187,38 @@ object fmMain: TfmMain
         end
         object btnPutMapping: TButton
           Left = 16
-          Top = 88
+          Top = 72
           Width = 97
           Height = 25
           Caption = 'Put Mapping'
           TabOrder = 2
           OnClick = btnPutMappingClick
         end
-        object ebMappingName: TEdit
-          Left = 128
-          Top = 87
-          Width = 137
-          Height = 26
+        object btnAddData: TButton
+          Left = 16
+          Top = 120
+          Width = 97
+          Height = 25
+          Caption = 'Add Data'
           TabOrder = 3
-          Text = 'bsd'
+          OnClick = btnAddDataClick
+        end
+        object btnAddFile: TButton
+          Left = 16
+          Top = 160
+          Width = 97
+          Height = 25
+          Caption = 'Add File'
+          TabOrder = 4
+          OnClick = btnAddFileClick
         end
       end
     end
+  end
+  object odBulk: TOpenDialog
+    DefaultExt = 'json'
+    Filter = 'json files (*.json)|*.json|All Files (*.*)|*.*'
+    Left = 191
+    Top = 136
   end
 end
