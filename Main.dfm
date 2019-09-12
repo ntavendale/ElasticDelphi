@@ -177,31 +177,23 @@ object fmMain: TfmMain
           TabOrder = 0
           OnClick = btnPutIndexClick
         end
-        object ebIndexName: TEdit
-          Left = 128
-          Top = 32
-          Width = 137
-          Height = 26
-          TabOrder = 1
-          Text = 'messages'
-        end
-        object btnPutMapping: TButton
+        object btnPutTextMapping: TButton
           Left = 16
           Top = 72
           Width = 97
           Height = 25
-          Caption = 'Put Mapping'
-          TabOrder = 2
-          OnClick = btnPutMappingClick
+          Caption = 'Text Mapping'
+          TabOrder = 1
+          OnClick = btnPutTextMappingClick
         end
-        object btnAddData: TButton
+        object btnTextKeywordData: TButton
           Left = 16
-          Top = 120
-          Width = 97
+          Top = 112
+          Width = 241
           Height = 25
-          Caption = 'Add Data'
-          TabOrder = 3
-          OnClick = btnAddDataClick
+          Caption = 'Text + Keyword Mapping'
+          TabOrder = 2
+          OnClick = btnTextKeywordDataClick
         end
         object btnAddFile: TButton
           Left = 16
@@ -209,8 +201,61 @@ object fmMain: TfmMain
           Width = 97
           Height = 25
           Caption = 'Add File'
-          TabOrder = 4
+          TabOrder = 3
           OnClick = btnAddFileClick
+        end
+        object btnPutKeyWordMapping: TButton
+          Left = 128
+          Top = 72
+          Width = 129
+          Height = 25
+          Caption = 'Keyword Mapping'
+          TabOrder = 4
+          OnClick = btnPutKeyWordMappingClick
+        end
+        object cbIndexName: TComboBox
+          Left = 128
+          Top = 31
+          Width = 129
+          Height = 26
+          Style = csDropDownList
+          TabOrder = 5
+          Items.Strings = (
+            'messages-t'
+            'messages-k'
+            'messages-tk')
+        end
+      end
+      object gbTemplate: TGroupBox
+        Left = 304
+        Top = 3
+        Width = 313
+        Height = 198
+        Caption = 'Template'
+        TabOrder = 1
+        object Label1: TLabel
+          Left = 16
+          Top = 31
+          Width = 70
+          Height = 18
+          Caption = 'Index Mask'
+        end
+        object ebIndexMask: TEdit
+          Left = 16
+          Top = 55
+          Width = 265
+          Height = 26
+          TabOrder = 0
+          Text = 'message*'
+        end
+        object btnTemplate: TButton
+          Left = 16
+          Top = 96
+          Width = 113
+          Height = 25
+          Caption = 'Put Template'
+          TabOrder = 1
+          OnClick = btnTemplateClick
         end
       end
     end
