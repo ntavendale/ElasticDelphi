@@ -16,6 +16,10 @@ uses
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, System.JSON, EndpointClient,
   Vcl.ComCtrls;
 
+const
+  ES_HOST = 'http://192.168.116.120';
+  //ES_HOST = 'http://127.0.0.1';
+
 type
   TfmMain = class(TForm)
     memMain: TMemo;
@@ -81,6 +85,7 @@ implementation
 constructor TfmMain.Create(Aowner: TComponent);
 begin
   inherited Create(AOwner);
+  Self.Caption := String.Format('Elastic Delphi. ES Host: %s', [ES_HOST]);
   FormInit;
 end;
 
@@ -97,7 +102,7 @@ var
   LEndpoint: TEndpointClient;
   LIndexDetail: TStringList;
 begin
-  LEndpoint := TEndpointClient.Create('http://127.0.0.1', 9200, String.Empty,String.Empty, AIndexName);
+  LEndpoint := TEndpointClient.Create(ES_HOST, 9200, String.Empty,String.Empty, AIndexName);
   try
     LIndexDetail := TStringList.Create;
     try
@@ -130,7 +135,7 @@ var
   LEndpoint: TEndpointClient;
   LResult: Integer;
 begin
-  LEndpoint := TEndpointClient.Create('http://127.0.0.1', 9200, String.Empty,String.Empty, ebCheckIndex.Text);
+  LEndpoint := TEndpointClient.Create(ES_HOST, 9200, String.Empty,String.Empty, ebCheckIndex.Text);
   try
     Screen.Cursor := crHourglass;
     try
@@ -215,7 +220,7 @@ begin
     LJson.Append(('  "logMessage":"This is a test message with an ID!" ').Trim);
     LJson.Append(('}                                             ').Trim);
 
-    LEndpoint := TEndpointClient.Create('http://127.0.0.1', 9200, String.Empty,String.Empty, '2018-07-01/message/DocID01');
+    LEndpoint := TEndpointClient.Create(ES_HOST, 9200, String.Empty,String.Empty, '2018-07-01/message/DocID01');
     try
       Screen.Cursor := crHourglass;
       try
@@ -259,7 +264,7 @@ begin
     LJson.Append(('  "logMessage":"This is an updated test message with an ID!" ').Trim);
     LJson.Append(('}                                             ').Trim);
 
-    LEndpoint := TEndpointClient.Create('http://127.0.0.1', 9200, String.Empty,String.Empty, '2018-07-01/message/DocID01');
+    LEndpoint := TEndpointClient.Create(ES_HOST, 9200, String.Empty,String.Empty, '2018-07-01/message/DocID01');
     try
       Screen.Cursor := crHourglass;
       try
@@ -302,7 +307,7 @@ begin
     LJson.Append(('  "logMessage":"Opps! We have an emergency!"  ').Trim);
     LJson.Append(('}                                             ').Trim);
 
-    LEndpoint := TEndpointClient.Create('http://127.0.0.1', 9200, String.Empty,String.Empty, '2018-07-02/message');
+    LEndpoint := TEndpointClient.Create(ES_HOST, 9200, String.Empty,String.Empty, '2018-07-02/message');
     try
       Screen.Cursor := crHourglass;
       try
@@ -347,7 +352,7 @@ begin
     LJson.Append('{ "type":"BSD","facility":"Kernel","severity":"Emergency","timeStamp":"2018-06-14T06:20:00.000Z","host":"192.168.8.1","process":"SysLogSimSvc","processId":2559,"logMessage":"EVID:0000 Server2: miscellaneous log message"}' + #13#10);
 
     //Use index and type here since it is a single index
-    LEndpoint := TEndpointClient.Create('http://127.0.0.1', 9200, String.Empty,String.Empty, '2018-06-14/message/_bulk');
+    LEndpoint := TEndpointClient.Create(ES_HOST, 9200, String.Empty,String.Empty, '2018-06-14/message/_bulk');
     try
       Screen.Cursor := crHourglass;
       try
@@ -389,7 +394,7 @@ begin
     LJson.Append('{ "type":"BSD","facility":"Kernel","severity":"Emergency","timeStamp":"2018-07-15T06:20:00.000Z","host":"192.168.8.1","process":"SysLogSimSvc","processId":2559,"logMessage":"EVID:0000 Server2: miscellaneous log message"}' + #13#10);
 
     //Just use _bulk endpoint since indexes and types specified for each document
-    LEndpoint := TEndpointClient.Create('http://127.0.0.1', 9200, String.Empty,String.Empty, '_bulk');
+    LEndpoint := TEndpointClient.Create(ES_HOST, 9200, String.Empty,String.Empty, '_bulk');
     try
       Screen.Cursor := crHourglass;
       try
@@ -453,7 +458,7 @@ begin
     LJson.Append(('                               }                           ').Trim);
     LJson.Append(('                  }                                        ').Trim);
     LJson.Append(('}                                                          ').Trim);
-    LEndPoint := TEndpointClient.Create('http://127.0.0.1', 9200, String.Empty, String.Empty, cbIndexName.Text);
+    LEndPoint := TEndpointClient.Create(ES_HOST, 9200, String.Empty, String.Empty, cbIndexName.Text);
     try
       Screen.Cursor := crHourglass;
       try
@@ -520,7 +525,7 @@ begin
     LJson.Append(('    }                                 ').Trim);
     LJson.Append(('}                                     ').Trim);
 
-    LEndPoint := TEndpointClient.Create('http://127.0.0.1', 9200, String.Empty, String.Empty, String.Format('%s/_mapping', [cbIndexName.Text]));
+    LEndPoint := TEndpointClient.Create(ES_HOST, 9200, String.Empty, String.Empty, String.Format('%s/_mapping', [cbIndexName.Text]));
     try
       Screen.Cursor := crHourglass;
       try
@@ -588,7 +593,7 @@ begin
     LJson.Append(('    }                                 ').Trim);
     LJson.Append(('}                                     ').Trim);
 
-    LEndPoint := TEndpointClient.Create('http://127.0.0.1', 9200, String.Empty, String.Empty, String.Format('%s/_mapping', [cbIndexName.Text]));
+    LEndPoint := TEndpointClient.Create(ES_HOST, 9200, String.Empty, String.Empty, String.Format('%s/_mapping', [cbIndexName.Text]));
     try
       Screen.Cursor := crHourglass;
       try
@@ -637,7 +642,7 @@ begin
     LJson.Append(('        "severity" : {                ').Trim);
     LJson.Append(('            "type" : "keyword"        ').Trim);
     LJson.Append(('        },                            ').Trim);
-    LJson.Append(('        "timestamp" : {               ').Trim);
+    LJson.Append(('        "timeStamp" : {               ').Trim);
     LJson.Append(('            "type" : "date"           ').Trim);
     LJson.Append(('        },                            ').Trim);
     LJson.Append(('        "host" : {                    ').Trim);
@@ -662,7 +667,7 @@ begin
     LJson.Append(('    }                                 ').Trim);
     LJson.Append(('}                                     ').Trim);
 
-    LEndPoint := TEndpointClient.Create('http://127.0.0.1', 9200, String.Empty, String.Empty, String.Format('%s/_mapping', [cbIndexName.Text]));
+    LEndPoint := TEndpointClient.Create(ES_HOST, 9200, String.Empty, String.Empty, String.Format('%s/_mapping', [cbIndexName.Text]));
     try
       Screen.Cursor := crHourglass;
       try
@@ -709,7 +714,7 @@ begin
         LJSon.Append(LFileContents[i] + #13#10);
       end;
 
-      LEndpoint := TEndpointClient.Create('http://127.0.0.1', 9200, String.Empty,String.Empty, '_bulk');
+      LEndpoint := TEndpointClient.Create(ES_HOST, 9200, String.Empty,String.Empty, '_bulk');
       try
         Screen.Cursor := crHourglass;
         try
@@ -749,37 +754,47 @@ begin
     LJson.Append(('    "settings": {                         ').Trim);
     LJson.Append(('        "index": {                        ').Trim);
     LJson.Append(('            "number_of_shards": 1         ').Trim);
-    LJson.Append(('        }                                ').Trim);
+    LJson.Append(('        }                                 ').Trim);
     LJson.Append(('    },                                    ').Trim);
     LJson.Append(('    "mappings": {                         ').Trim);
     LJson.Append(('        "_source": {                      ').Trim);
     LJson.Append(('            "enabled": false              ').Trim);
     LJson.Append(('        },                                ').Trim);
-    LJson.Append(('        "dynamic" : "strict",             ').Trim);
+    LJson.Append(('        "dynamic" : "false",              ').Trim); //true will not create field and add to mapping if document contains unknown feild
+                                                                       //false will not create new field
+                                                                       //strict will throw an exception and not add documents
     LJson.Append(('        "properties" : {                  ').Trim);
     LJson.Append(('            "type" : {                    ').Trim);
+    LJson.Append(('                "store" : true,           ').Trim);
     LJson.Append(('                "type" : "keyword"        ').Trim);
     LJson.Append(('            },                            ').Trim);
     LJson.Append(('            "facility" : {                ').Trim);
+    LJson.Append(('                "store" : true,           ').Trim);
     LJson.Append(('                "type" : "keyword"        ').Trim);
     LJson.Append(('            },                            ').Trim);
     LJson.Append(('            "severity" : {                ').Trim);
+    LJson.Append(('                "store" : true,           ').Trim);
     LJson.Append(('                "type" : "keyword"        ').Trim);
     LJson.Append(('            },                            ').Trim);
-    LJson.Append(('            "timestamp" : {               ').Trim);
+    LJson.Append(('            "timeStamp" : {               ').Trim);
+    LJson.Append(('                "store" : true,           ').Trim);
     LJson.Append(('                "type" : "date"           ').Trim);
     LJson.Append(('            },                            ').Trim);
     LJson.Append(('            "host" : {                    ').Trim);
+    LJson.Append(('                "store" : true,           ').Trim);
     LJson.Append(('                "type" : "keyword"        ').Trim);
     LJson.Append(('            },                            ').Trim);
     LJson.Append(('            "process" : {                 ').Trim);
+    LJson.Append(('                "store" : true,           ').Trim);
     LJson.Append(('                "type" : "keyword",       ').Trim);
     LJson.Append(('                "ignore_above" : 100      ').Trim);
     LJson.Append(('            },                            ').Trim);
     LJson.Append(('            "processId" : {               ').Trim);
+    LJson.Append(('                "store" : true,           ').Trim);
     LJson.Append(('                "type" : "long"           ').Trim);
     LJson.Append(('            },                            ').Trim);
     LJson.Append(('            "logMessage" : {              ').Trim);
+    LJson.Append(('                "store" : true,           ').Trim);
     LJson.Append(('                "type" : "text",          ').Trim);
     LJson.Append(('                "fields" : {              ').Trim);
     LJson.Append(('                    "keyword" : {         ').Trim);
@@ -790,11 +805,11 @@ begin
     LJson.Append(('            }                             ').Trim);
     LJson.Append(('        }                                 ').Trim);
     LJson.Append(('    },                                    ').Trim);
-    LJson.Append(('    "aliases" : { }                       ').Trim);
+    LJson.Append(('    "aliases" : {}                        ').Trim);
     LJson.Append(('}                                         ').Trim);
 
     //Template name must be lower case
-    LEndPoint := TEndpointClient.Create('http://127.0.0.1', 9200, String.Empty, String.Empty, '_template/logmessage');
+    LEndPoint := TEndpointClient.Create(ES_HOST, 9200, String.Empty, String.Empty, '_template/.logmessage');
     try
       Screen.Cursor := crHourglass;
       try

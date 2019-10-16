@@ -39,6 +39,10 @@ object fmMain: TfmMain
     TabOrder = 1
     object tsBasics: TTabSheet
       Caption = 'Basics'
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object gbIndexExists: TGroupBox
         Left = 8
         Top = 0
