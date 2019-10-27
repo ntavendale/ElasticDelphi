@@ -40,27 +40,3 @@ echo Start elasticseach daemon
 /bin/systemctl enable elasticsearch.service
 systemctl start elasticsearch.service
 
-echo Install kibana
-cat > /etc/yum.repos.d/kibana.repo <<EOF
-[kibana-6.x]
-name=Kibana repository for 6.x packages
-baseurl=https://artifacts.elastic.co/packages/6.x/yum
-gpgcheck=1
-gpgkey=https://artifacts.elastic.co/GPG-KEY-elasticsearch
-enabled=1
-autorefresh=1
-type=rpm-md
-EOF
-
-yum -y install kibana
-
-echo Open port 5601
-firewall-cmd --permanent --add-port=5601/tcp
-firewall-cmd --reload
-
-sed -i -e 's/#server.host: "localhost"/server.host: "'$1'"/g' /etc/kibana/kibana.yml
-
-echo start daemon
-/bin/systemctl daemon-reload
-/bin/systemctl enable kibana.service
-/bin/systemctl start kibana.service
