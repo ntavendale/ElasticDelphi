@@ -14,11 +14,13 @@ uses
   Winapi.Windows, Winapi.Messages, System.IOUtils, System.SysUtils, System.Variants,
   System.Generics.Collections, System.Classes, System.UITypes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, System.JSON, EndpointClient,
-  Vcl.ComCtrls;
+  Vcl.ComCtrls, LogMessage;
 
 const
-  ES_HOST = 'http://192.168.116.120';
+  ES_HOST = 'http://192.168.85.122';
   //ES_HOST = 'http://127.0.0.1';
+  //Template/Mapping examples only work with Elastic 7
+  //As it removed types (ES 6 only deprecated them)
 
 type
   TfmMain = class(TForm)
@@ -52,6 +54,13 @@ type
     ebIndexMask: TEdit;
     Label1: TLabel;
     btnTemplate: TButton;
+    tsRoutes: TTabSheet;
+    GroupBox1: TGroupBox;
+    Label2: TLabel;
+    ebRoutedIndex: TEdit;
+    Button1: TButton;
+    Label3: TLabel;
+    cbShards: TComboBox;
     procedure btnIndexExistsClick(Sender: TObject);
     procedure btnCreateIndexClick(Sender: TObject);
     procedure btnAddSyslogWithIDClick(Sender: TObject);
@@ -66,10 +75,11 @@ type
     procedure btnAddFileClick(Sender: TObject);
     procedure btnPutKeyWordMappingClick(Sender: TObject);
     procedure btnTemplateClick(Sender: TObject);
+    procedure Button1Click(Sender: TObject);
   private
     { Private declarations }
     procedure FormInit;
-    procedure CreateIndex(AIndexName: String);
+    procedure CreateIndex(AIndexName: String; AShards: Integer = 5);
   public
     { Public declarations }
     constructor Create(Aowner: TComponent); override;
@@ -97,7 +107,7 @@ begin
   cbIndexName.ItemIndex := 0;
 end;
 
-procedure TfmMain.CreateIndex(AIndexName: String);
+procedure TfmMain.CreateIndex(AIndexName: String; AShards: Integer = 5);
 var
   LEndpoint: TEndpointClient;
   LIndexDetail: TStringList;
@@ -109,7 +119,7 @@ begin
       LIndexDetail.Add(('{                                                          ').Trim);
       LIndexDetail.Add(('    "settings" : {                                         ').Trim);
       LIndexDetail.Add(('                    "index" : {                            ').Trim);
-      LIndexDetail.Add(('                                 "number_of_shards" : 5,   ').Trim);
+      LIndexDetail.Add((String.Format('                                 "number_of_shards" : %d,   ', [AShards])).Trim);
       LIndexDetail.Add(('                                 "number_of_replicas" : 2  ').Trim);
       LIndexDetail.Add(('                               }                           ').Trim);
       LIndexDetail.Add(('                  }                                        ').Trim);
@@ -708,9 +718,10 @@ begin
     LFileContents.LoadFromFile(odBulk.FileName);
     LJson := TStringBuilder.Create;
     try
-      for i := 0 to (LFileContents.Count - 1) do
+
+     for i := 0 to (LFileContents.Count - 1) do
       begin
-        LJSon.Append(String.Format('{"index":{"_index":"%s"}}', [cbIndexName.Text]) + #13#10);
+        LJSon.Append(String.Format('{"index":{"_index":"%s", "_routing" : "%s"}}', [ebRoutedIndex.Text]) + #13#10);
         LJSon.Append(LFileContents[i] + #13#10);
       end;
 
@@ -834,6 +845,66 @@ begin
   finally
     LJson.Free;
   end;
+end;
+
+procedure TfmMain.Button1Click(Sender: TObject);
+begin
+  CreateIndex(ebRoutedIndex.Text, cbShards.ItemIndex + 1);
+  if not odBulk.Execute then
+    EXIT;
+  var LDict := TObjectDictionary<string, TList<string>>.Create([doOwnsValues]);
+  try
+    var LFileContents := TStringList.Create;
+    try
+      LFileContents.LoadFromFile(odBulk.FileName);
+      for var i := 0 to (LFileContents.Count - 1) do
+      begin
+        var LMsg := TLogMessage.Create(LFileContents[i]);
+        if not LDict.ContainsKey(LMsg.Severity) then
+          LDict.Add(LMsg.Severity, TList<String>.Create);
+        LDict[LMsg.Severity].Add(LFileContents[i]);
+      end;
+    finally
+      LFileContents.Free;
+    end;
+
+    var LEndPoint := TEndpointClient.Create(ES_HOST, 9200, String.Empty, String.Empty, '_bulk');
+    try
+      for var LDictionaryEntery in LDict do
+      begin
+        var LJson := TStringBuilder.Create;
+        try
+          for var i := 0 to (LDictionaryEntery.Value.Count -1) do
+          begin
+            LJSon.Append(String.Format('{"index":{"_index":"%s", "routing" : "%s"}}', [ebRoutedIndex.Text, LDictionaryEntery.Key]) + #13#10);
+            LJSon.Append(LDictionaryEntery.Value[i] + #13#10);
+          end;
+
+          Screen.Cursor := crhourglass;
+          try
+            LEndpoint.Post(LJSon.ToString);
+          finally
+            Screen.Cursor := crDefault;
+          end;
+
+          memMain.Lines.Add(String.Format('Posted to %s', [LEndpoint.FullURL ]));
+          if 200 = LEndpoint.StatusCode then
+            memMain.Lines.Add(String.Format('%s created!', [LEndpoint.FullURL]))
+          else
+          begin
+            memMain.Lines.Add(String.Format('%s creation failed!', [LEndpoint.FullURL]));
+          end;
+        finally
+          LJson.Free;
+        end;
+      end;
+    finally
+      LEndpoint.Free;
+    end;
+  finally
+    LDict.Free;
+  end;
+
 end;
 
 end.

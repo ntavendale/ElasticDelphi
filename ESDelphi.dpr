@@ -3,7 +3,8 @@ program ESDelphi;
 uses
   Vcl.Forms,
   Main in 'Main.pas' {fmMain},
-  EndPointClient in 'EndPointClient.pas';
+  EndPointClient in 'EndPointClient.pas',
+  LogMessage in 'LogMessage.pas';
 
 {$R *.res}
 

@@ -34,15 +34,11 @@ object fmMain: TfmMain
     Top = 0
     Width = 789
     Height = 354
-    ActivePage = tsCustomMapping
+    ActivePage = tsRoutes
     Align = alClient
     TabOrder = 1
     object tsBasics: TTabSheet
       Caption = 'Basics'
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object gbIndexExists: TGroupBox
         Left = 8
         Top = 0
@@ -260,6 +256,71 @@ object fmMain: TfmMain
           Caption = 'Put Template'
           TabOrder = 1
           OnClick = btnTemplateClick
+        end
+      end
+    end
+    object tsRoutes: TTabSheet
+      Caption = 'Routes'
+      ImageIndex = 2
+      ExplicitLeft = 0
+      ExplicitTop = 27
+      object GroupBox1: TGroupBox
+        Left = 3
+        Top = 0
+        Width = 313
+        Height = 198
+        Caption = 'Template'
+        TabOrder = 0
+        object Label2: TLabel
+          Left = 16
+          Top = 31
+          Width = 35
+          Height = 18
+          Caption = 'Index'
+        end
+        object Label3: TLabel
+          Left = 184
+          Top = 31
+          Width = 41
+          Height = 18
+          Caption = 'Shards'
+        end
+        object ebRoutedIndex: TEdit
+          Left = 16
+          Top = 55
+          Width = 145
+          Height = 26
+          TabOrder = 0
+          Text = 'routed-msg'
+        end
+        object Button1: TButton
+          Left = 16
+          Top = 96
+          Width = 113
+          Height = 25
+          Caption = 'Put Messages'
+          TabOrder = 1
+          OnClick = Button1Click
+        end
+        object cbShards: TComboBox
+          Left = 184
+          Top = 55
+          Width = 97
+          Height = 26
+          Style = csDropDownList
+          ItemIndex = 0
+          TabOrder = 2
+          Text = '1'
+          Items.Strings = (
+            '1'
+            '2'
+            '3'
+            '4'
+            '5'
+            '6'
+            '7'
+            '8'
+            '9')
         end
       end
     end
