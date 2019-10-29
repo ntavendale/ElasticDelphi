@@ -34,7 +34,7 @@ object fmMain: TfmMain
     Top = 0
     Width = 789
     Height = 354
-    ActivePage = tsRoutes
+    ActivePage = tsCustomMapping
     Align = alClient
     TabOrder = 1
     object tsBasics: TTabSheet
